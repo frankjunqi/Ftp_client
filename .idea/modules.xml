@@ -7,6 +7,8 @@
       <module fileurl="file://$PROJECT_DIR$/commons-io-2.4/commons-io-2.4.iml" filepath="$PROJECT_DIR$/commons-io-2.4/commons-io-2.4.iml" />
       <module fileurl="file://$PROJECT_DIR$/commons-net-3.3/commons-net-3.3.iml" filepath="$PROJECT_DIR$/commons-net-3.3/commons-net-3.3.iml" />
       <module fileurl="file://$PROJECT_DIR$/ftp4j-1.7.2/ftp4j-1.7.2.iml" filepath="$PROJECT_DIR$/ftp4j-1.7.2/ftp4j-1.7.2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/materialprogressbarlib/materialprogressbarlib.iml" filepath="$PROJECT_DIR$/materialprogressbarlib/materialprogressbarlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mupdflibrary/mupdflibrary.iml" filepath="$PROJECT_DIR$/mupdflibrary/mupdflibrary.iml" />
     </modules>
   </component>
 </project>

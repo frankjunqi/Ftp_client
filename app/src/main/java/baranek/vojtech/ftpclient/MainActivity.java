@@ -1,6 +1,7 @@
 package baranek.vojtech.ftpclient;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -8,8 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +24,7 @@ import java.net.SocketException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 
 public class MainActivity extends Activity {
@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
     @Bind(R.id.recyclerViewMain)
     RecyclerView recyclerViewMain;
     @Bind(R.id.progress)
-    ProgressBar progress;
+    MaterialProgressBar progress;
 
     private MyRecyclerAdapter adapter;
     private FTPFile[] files;
@@ -56,6 +56,13 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 DownloadFile("merge_request.pdf");
+            }
+        });
+        btnNahratSoubor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MBActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -188,6 +195,9 @@ public class MainActivity extends Activity {
                         File file = new File(Environment.getExternalStorageDirectory() + File.separator + "EWI");
                         file.mkdir();
                         File pdffile = new File(Environment.getExternalStorageDirectory() + File.separator + "EWI" + File.separator + params[1]);
+                        if(pdffile.exists()){
+                            break;
+                        }
                         pdffile.createNewFile();
                         FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + File.separator + "EWI" + File.separator + params[1]);
                         mFTPClient.retrieveFile(strPath + "/" + params[1], fos);
@@ -270,6 +280,8 @@ public class MainActivity extends Activity {
                 recyclerViewMain.setAdapter(adapter);
                 etCesta.setText(strPath);
 
+                Intent intent = new Intent(MainActivity.this, SampleActivity.class);
+                startActivity(intent);
 
             } else {
                 Toast.makeText(getApplicationContext(), R.string.action_failed, Toast.LENGTH_SHORT).show();
