@@ -13,17 +13,18 @@ import java.io.File;
  */
 public class SampleActivity extends Activity {
     private static final String TAG = "SampleActivity";
-    private static final String SAMPLE_FILE = "merge_request.pdf";
     private static final String FILE_PATH = "filepath";
-    private static final String SEARCH_TEXT = "text";
     private PdfFragment fragment;
     private static Context context;
+
+    private String path = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         context = SampleActivity.this;
+        path = getIntent().getStringExtra("path");
         openPdfWithFragment();
 
     }
@@ -31,7 +32,7 @@ public class SampleActivity extends Activity {
     public void openPdfWithFragment() {
         fragment = new PdfFragment();
         Bundle args = new Bundle();
-        args.putString(FILE_PATH, Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "EWI" + File.separator + SAMPLE_FILE);
+        args.putString(FILE_PATH, Environment.getExternalStorageDirectory().getAbsolutePath() + path);
         fragment.setArguments(args);
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();

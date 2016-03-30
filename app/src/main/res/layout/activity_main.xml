@@ -1,65 +1,111 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="horizontal"
+    android:weightSum="9"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/etCesta"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="50dp"
-        android:textStyle="bold" />
 
     <LinearLayout
+        android:id="@+id/ll_left"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="0dp">
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/iv_show_fresco"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            fresco:placeholderImage="@drawable/ic_launcher" />
 
-        <Button
+        <TextView
+            android:id="@+id/tv_custname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="客户："
+            android:textStyle="bold" />
 
-            android:id="@+id/btnPridatAdr"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="2dp"
-            android:layout_weight="1"
-            android:text="@string/pridat_adresar"
-            android:textColor="@color/icons" />
+        <TextView
+            android:id="@+id/tv_machinename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="零件："
+            android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnNahratSoubor"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="1"
-            android:text="@string/upload_file"
-            android:textColor="@color/icons"
-
-            />
+        <TextView
+            android:id="@+id/tv_deviceid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="deviceid："
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerViewMain"
-        android:layout_width="match_parent"
+
+    <RelativeLayout
+        android:id="@+id/ll_middle"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginTop="95dp">
+        android:layout_weight="7">
 
-    </android.support.v7.widget.RecyclerView>
+        <LinearLayout
+            android:id="@+id/ll_pdf"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_green_light"
+            android:orientation="horizontal">
 
-    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-        android:id="@+id/progress"
-        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        app:mpb_progressStyle="horizontal" />
+        </LinearLayout>
+
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:id="@+id/progress"
+            style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:mpb_progressStyle="horizontal" />
 
 
-</RelativeLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_right"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_right_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1" />
+
+        <Button
+            android:id="@+id/btn_right_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2" />
+
+        <Button
+            android:id="@+id/btn_right_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3" />
+
+        <Button
+            android:id="@+id/btn_right_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4" />
+    </LinearLayout>
+
+</LinearLayout>
