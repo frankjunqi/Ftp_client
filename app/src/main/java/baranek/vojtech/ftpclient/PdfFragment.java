@@ -47,8 +47,9 @@ public class PdfFragment extends Fragment {
             mDocView = new MuPDFReaderView(getActivity()) {
                 @Override
                 protected void onMoveToChild(int i) {
-                    if (core == null)
+                    if (core == null){
                         return;
+                    }
                     super.onMoveToChild(i);
                 }
 

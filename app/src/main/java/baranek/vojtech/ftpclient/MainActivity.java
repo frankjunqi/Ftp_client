@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -19,19 +20,16 @@ import android.widget.Toast;
 import com.artifex.mupdfdemo.MuPDFCore;
 import com.artifex.mupdfdemo.MuPDFPageAdapter;
 import com.artifex.mupdfdemo.MuPDFReaderView;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import baranek.vojtech.ftpclient.api.EwiLoginService;
@@ -52,6 +50,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private final String TAG = getClass().getSimpleName();
     private String FTP_HOST = "27.54.248.35", FTP_USER = "MES", FTP_PASS = "";
     private final String EWIPATH = "/EWI";// 本地建立的文件夹的根目录
+
+
+    // 错误标识码
+    private final String NOFILEERROR = "1";// 远程无文件
+    private final String NOREGISTEDEVICE = "2";// 设备没有注册
+    private final String NONETWORK = "3";// 设备没有注册
+    private final String FILECHECKOK = "4";// FileCheckOK
+    private final String FILEDOWNOK = "5";// FILEDOWNOK
+    private final String FILEDOWNERROR = "6";// FILEDOWNOKEOOR
+    private final String PDFNERROR = "7";// PDF error
+
+
+    // 发送请求的标志码
+    private static final int SENDFLAG = 0x10;
+
+    private String currentErrorFlag = "";// 当前的错误类型
 
     @Bind(R.id.progress)
     MaterialProgressBar progress;
@@ -83,6 +97,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Bind(R.id.iv_show_fresco)
     SimpleDraweeView iv_show_fresco;
 
+    @Bind(R.id.tv_countpage)
+    TextView tv_countpage;
+
     private MyRecyclerAdapter adapter;
     private FTPFile[] files;
 
@@ -93,91 +110,114 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private String MachineName = "";
     private String deviceId = "";
 
-
-    private static final String FILE_PATH = "filepath";
     private MuPDFCore core;
-    private MuPDFReaderView mDocView;
-    private String mFilePath = "";
+    private int totalPage = 0;
+    private int currentPage = 1;
 
-    private AssyncFtpTaskActions assyncFtpTaskActions;
+
+    private ArrayList<Button> buttonList = new ArrayList<>();
+
+    // 定时器操作
+    private static RequestHandler requestHandler = null;
+
+    private class RequestHandler extends Handler {
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case SENDFLAG:
+                    asyncRequest();
+                    break;
+            }
+        }
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        deleteDirectory(Environment.getExternalStorageDirectory() + EWIPATH + File.separator);
         ButterKnife.bind(this);
         deviceId = getDeviceId();
-        asyncRequest();
         btn_right_1.setOnClickListener(this);
         btn_right_2.setOnClickListener(this);
         btn_right_3.setOnClickListener(this);
         btn_right_4.setOnClickListener(this);
-
+        buttonList.add(btn_right_1);
+        buttonList.add(btn_right_2);
+        buttonList.add(btn_right_3);
+        buttonList.add(btn_right_4);
+        requestHandler = new RequestHandler();
+        requestHandler.sendEmptyMessage(SENDFLAG);
     }
 
 
     @Override
     public void onClick(View v) {
+        if (core != null) {
+            core.onDestroy();
+            core = null;
+        }
         ll_pdf.removeAllViews();
+        switch (currentErrorFlag) {
+            case NOREGISTEDEVICE: {
+                Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
         switch (v.getId()) {
             case R.id.btn_right_1:
-                DownloadFile(EWIPATH, MachineCode, PN, "1.pdf");
+                openPdf(0);
                 break;
             case R.id.btn_right_2:
-                DownloadFile(EWIPATH, MachineCode, PN, "2.pdf");
+                openPdf(1);
                 break;
             case R.id.btn_right_3:
-                DownloadFile(EWIPATH, MachineCode, PN, "3.pdf");
+                openPdf(2);
                 break;
             case R.id.btn_right_4:
-                DownloadFile(EWIPATH, MachineCode, PN, "4.pdf");
+                openPdf(3);
                 break;
 
         }
+
     }
 
-    private void initPDF() {
+
+    private void initPDF(String mFilePath) {
         core = openFile(Uri.decode(mFilePath));
         if (core != null && core.countPages() == 0) {
-            core = null;
+
         }
         if (core == null || core.countPages() == 0 || core.countPages() == -1) {
             Log.e(TAG, "Document Not Opening");
         }
         if (core != null) {
-            mDocView = new MuPDFReaderView(MainActivity.this) {
+            MuPDFReaderView mDocView = new MuPDFReaderView(MainActivity.this) {
                 @Override
-                protected void onMoveToChild(int i) {
-                    if (core == null)
+                protected void onMoveToChild(int index) {
+                    if (core == null) {
                         return;
-                    super.onMoveToChild(i);
+                    }
+                    currentPage = index + 1;
+                    tv_countpage.setText(currentPage + "/" + totalPage + "页");
+                    super.onMoveToChild(index);
                 }
             };
             mDocView.setAdapter(new MuPDFPageAdapter(MainActivity.this, core));
+            totalPage = core.countPages();
+            tv_countpage.setText(currentPage + "/" + totalPage + "页");
+            Log.e(TAG, "totalpagecount = " + core.countPages() + " - ");
             ll_pdf.addView(mDocView);
         }
     }
 
-    private MuPDFCore openBuffer(byte buffer[]) {
-        System.out.println("Trying to open byte buffer");
-        try {
-            core = new MuPDFCore(MainActivity.this, buffer);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            return null;
-        }
-        return core;
-    }
 
     private MuPDFCore openFile(String path) {
-        int lastSlashPos = path.lastIndexOf('/');
-        mFilePath = new String(lastSlashPos == -1
-                ? path
-                : path.substring(lastSlashPos + 1));
+        MuPDFCore core = null;
         try {
             core = new MuPDFCore(MainActivity.this, path);
-            // New file: drop the old outline data
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             return null;
@@ -196,156 +236,160 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         EwiLoginService service = retrofit.create(EwiLoginService.class);
-        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", "test");
+        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", deviceId);
         allMachineResBodyCall.enqueue(new Callback<EwiResBody>() {
             @Override
             public void onResponse(Call<EwiResBody> call, Response<EwiResBody> response) {
+                tv_deviceid.setText(deviceId);
                 if (response != null && response.body() != null && response.body().d != null && response.body().d.Data != null) {
                     MachineCode = response.body().d.Data.MachineCode;
-                    PN = response.body().d.Data.PN;
+                    String tempPN = response.body().d.Data.PN;
                     CustName = response.body().d.Data.CustName;
                     MachineName = response.body().d.Data.MachineName;
                     String CustLogo = response.body().d.Data.CustLogo;
 
                     tv_custname.setText(CustName);
                     tv_machinename.setText(MachineName);
-                    tv_deviceid.setText(deviceId);
 
                     Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
                     iv_show_fresco.setImageURI(uri);
 
+                    // 判断pn是否发生变化，有变化需要更新远程files
+                    if (!PN.equals(tempPN) || files == null || files.length == 0) {
+                        PN = tempPN;
+                        // delete file
+                        deleteDirectory(Environment.getExternalStorageDirectory() + EWIPATH + File.separator);
+                        // 创建目录
+                        File pnFile = new File(Environment.getExternalStorageDirectory() + EWIPATH);
+                        pnFile.mkdirs();
+                        // 检查远程指定文件夹的file list
+                        checkFileList(MachineCode, PN);
+                    } else {
+                        requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
+                    }
                 } else {
-                    Toast.makeText(MainActivity.this, "接口错误", Toast.LENGTH_LONG).show();
-                    return;
+                    currentErrorFlag = NOREGISTEDEVICE;
+                    Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
+                    requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                 }
             }
 
             @Override
             public void onFailure(Call<EwiResBody> call, Throwable throwable) {
+                currentErrorFlag = NONETWORK;
                 Toast.makeText(MainActivity.this, "网络出现异常，请检查网络链接", Toast.LENGTH_LONG).show();
+                requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
             }
         });
     }
 
-    /**
-     * Download file method
-     */
-    private void DownloadFile(String ewiPath, String MachineCode, String PN, String pdfName) {
-        if (assyncFtpTaskActions != null) {
-            assyncFtpTaskActions.cancel(true);
-        }
-        assyncFtpTaskActions = new AssyncFtpTaskActions();
-        assyncFtpTaskActions.execute("DOWNLOAD", ewiPath, MachineCode, PN, pdfName);
+    // Download file method
+    private void DownloadFile(String MachineCode, String PN, int number) {
+        AssyncFtpTaskActions assyncFtpTaskActions = new AssyncFtpTaskActions();
+        assyncFtpTaskActions.execute("DOWNLOAD", MachineCode, PN, files[number].getName());
+    }
 
+    private void checkFileList(String MachineCode, String PN) {
+        AssyncFtpTaskActions assyncFtpTaskActions = new AssyncFtpTaskActions();
+        assyncFtpTaskActions.execute("CHECKFILELIST", MachineCode, PN);
+    }
+
+    private void openPdf(int number) {
+        // 远程文件目录
+        if (files == null || files.length == 0) {
+            Toast.makeText(MainActivity.this, "远程文件为空，维护后，请刷新当前页面。", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // 是否存在索引文件
+        if (number >= files.length) {
+            Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // 判断本地是否有文件
+        String localPdfFile = Environment.getExternalStorageDirectory() + EWIPATH + File.separator + files[number].getName();
+        Log.e(TAG, localPdfFile);
+        File file = new File(localPdfFile);
+        if (file.exists()) {
+            initPDF(localPdfFile);
+        } else {
+            Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * ftp task 的post的值
+     */
+    public class TaskDate {
+        public String resultFlag;
+        public String pdfPath;
     }
 
 
     /**
      * Assync task  for operations with files
      */
-    public class AssyncFtpTaskActions extends AsyncTask<String, Void, String> {
+    public class AssyncFtpTaskActions extends AsyncTask<String, Void, TaskDate> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected TaskDate doInBackground(String... params) {
             FTPClient mFTPClient = new FTPClient();
-            Integer result = 0;
-            String path = "";
+            TaskDate taskDate = new TaskDate();
             try {
-                /**
-                 Establish connection
-                 */
+                // Establish connection
                 mFTPClient.setControlEncoding("UTF-8");
                 mFTPClient.connect(FTP_HOST, 6888);
                 mFTPClient.login(FTP_USER, FTP_PASS);
                 mFTPClient.enterLocalPassiveMode();
                 mFTPClient.changeWorkingDirectory(EWIPATH);
 
-                /**
-                 Action with files
-                 */
-
+                // Action with files
                 switch (params[0]) {
-                    case "DELETE": {
-                        mFTPClient.deleteFile(params[1]);
 
+                    case "CHECKFILELIST": {
+                        String machineCode = params[1];
+                        String pn = params[2];
+                        if (mFTPClient.changeWorkingDirectory(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator)) {
+                            files = mFTPClient.listFiles();
+                        }
+                        if (files == null || files.length == 0) {
+                            currentErrorFlag = NOFILEERROR;
+                            taskDate.resultFlag = NOFILEERROR;
+                        } else {
+                            taskDate.resultFlag = FILECHECKOK;
+                        }
                         break;
                     }
-                    case "RENAME": {
-                        mFTPClient.rename(params[1], params[2]);
-                        break;
-                    }
+
                     case "DOWNLOAD": {
-                        String ewi = params[1];
-                        String machineCode = params[2];
-                        String pn = params[3];
-                        String pdfPath = params[4];
-                        // 创建目录
-                        File ewiFile = new File(Environment.getExternalStorageDirectory() + File.separator + ewi);
-                        ewiFile.mkdir();
-                        File machineFile = new File(Environment.getExternalStorageDirectory() + File.separator + ewi + File.separator + machineCode);
-                        machineFile.mkdir();
-                        File pnFile = new File(Environment.getExternalStorageDirectory() + File.separator + ewi + File.separator + machineCode + File.separator + pn);
-                        pnFile.mkdir();
+                        String machineCode = params[1];
+                        String pn = params[2];
+                        String pdfPath = params[3];
+
                         // 创建pdf
-                        File pdfFile = new File(Environment.getExternalStorageDirectory() + File.separator + ewi + File.separator + machineCode + File.separator + pn + File.separator + pdfPath);
-                        path = ewi + File.separator + machineCode + File.separator + pn + File.separator + pdfPath;
+                        File pdfFile = new File(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath);
+                        taskDate.pdfPath = pdfPath;
+                        // task调用下载，即需要重新进行下载
                         if (pdfFile.exists()) {
                             pdfFile.delete();
                         }
                         pdfFile.createNewFile();
-                        FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + ewi + File.separator + machineCode + File.separator + pn + File.separator + pdfPath);
-                        mFTPClient.retrieveFile(ewi + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
+                        FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath);
+                        boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
+                        taskDate.resultFlag = isOk ? FILEDOWNOK : FILEDOWNERROR;
                         fos.flush();
                         fos.close();
                         break;
                     }
-                    case "DELETEDIR": {
-                        boolean rem = mFTPClient.removeDirectory(params[1]);
-
-                        break;
-                    }
-                    case "CREATEDIR": {
-                        String strPath = "";
-                        if (mFTPClient.changeWorkingDirectory(params[1])) {
-                            strPath = strPath + "/" + params[1];
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), R.string.folderalreadyexists, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                        } else {
-                            mFTPClient.makeDirectory(params[1]);
-                        }
-                        break;
-                    }
-                    case "UPLOADFILE": {
-                        File f = new File(params[1]);
-                        InputStream input = new FileInputStream(f);
-                        if (mFTPClient.getReplyCode() != 550) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), R.string.filealreadyExiists, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                        } else {
-                            mFTPClient.storeFile(EWIPATH + "/" + f.getName().toString(), input);
-                        }
-                        break;
-                    }
                 }
-                files = mFTPClient.listFiles();
-                result = 1;
                 mFTPClient.disconnect();
             } catch (SocketException e) {
-                e.printStackTrace();
+                taskDate.resultFlag = NONETWORK;
             } catch (IOException e) {
-                e.printStackTrace();
+                taskDate.resultFlag = PDFNERROR;
             }
-            return String.valueOf(path);
+            return taskDate;
         }
 
         /**
@@ -363,16 +407,65 @@ public class MainActivity extends Activity implements View.OnClickListener {
          */
 
         @Override
-        protected void onPostExecute(String path) {
-            progress.setVisibility(View.GONE);
-            if (!TextUtils.isEmpty(path)) {
-                mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + path;
-                initPDF();
-//                Intent intent = new Intent(MainActivity.this, SampleActivity.class);
-//                intent.putExtra("path", path);
-//                startActivity(intent);
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.action_failed, Toast.LENGTH_SHORT).show();
+        protected void onPostExecute(TaskDate taskDate) {
+            switch (taskDate.resultFlag) {
+                case NOFILEERROR: {
+                    // 远程文件不存在的情况下，10s后进行重新请求pn号
+                    Toast.makeText(getApplicationContext(), "远程文件资料不存在，请及时维护。", Toast.LENGTH_SHORT).show();
+                    requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
+                    break;
+                }
+                case FILECHECKOK: {
+                    // 远程文件有数据do nothing
+                    Toast.makeText(getApplicationContext(), "获取远程列表成功，开始进行下载文件", Toast.LENGTH_SHORT).show();
+                    for (int i = 0; files != null && i < files.length && i < buttonList.size(); i++) {
+                        Log.e(TAG, files[i].getName());
+                        DownloadFile(MachineCode, PN, i);
+                    }
+                    requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
+                    break;
+                }
+                case FILEDOWNOK: {
+                    // 文件下载完成并且打开
+                    Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
+                    for (int i = 0; i < files.length && i < buttonList.size(); i++) {
+                        if (files[i].getName().equals(taskDate.pdfPath)) {
+                            buttonList.get(i).setText(taskDate.pdfPath);
+                            buttonList.get(i).setBackgroundColor(getResources().getColor(R.color.accentBL));
+                        }
+                    }
+                    if (new File(Environment.getExternalStorageDirectory() + EWIPATH + File.separator).list().length == 4) {
+                        progress.setVisibility(View.GONE);
+                    }
+                    break;
+                }
+                case FILEDOWNERROR: {
+                    // ftp下载失败，提示重新下载
+                    // 下载失败，删除本地文件
+                    if (!TextUtils.isEmpty(taskDate.pdfPath)) {
+                        File file = new File(Environment.getExternalStorageDirectory() + taskDate.pdfPath);
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                case NONETWORK: {
+                    Toast.makeText(getApplicationContext(), "网络出现异常，请检查网络链接", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                case PDFNERROR: {
+                    // 下载失败，删除本地文件
+                    if (!TextUtils.isEmpty(taskDate.pdfPath)) {
+                        File file = new File(Environment.getExternalStorageDirectory() + taskDate.pdfPath);
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "pdf下载出现异常，请重新下载", Toast.LENGTH_SHORT).show();
+                    break;
+                }
             }
         }
     }
@@ -401,4 +494,43 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    /**
+     * 删除目录（文件夹）以及目录下的文件
+     *
+     * @param sPath 被删除目录的文件路径
+     * @return 目录删除成功返回true，否则返回false
+     */
+    public boolean deleteDirectory(String sPath) {
+        File dirFile = new File(sPath);
+        //删除文件夹下的所有文件(包括子目录)
+        File[] files = dirFile.listFiles();
+        for (int i = 0; files != null && i < files.length; i++) {
+            //删除子文件
+            files[i].delete();
+        }
+        return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (requestHandler != null) {
+            requestHandler.removeMessages(SENDFLAG);
+        }
+        super.onDestroy();
+    }
+
+    // 系统退出的纪录时间
+    private long mExitTime = 0;
+
+    @Override
+    public void onBackPressed() {
+        if (System.currentTimeMillis() - mExitTime > 2000) {
+            Toast.makeText(this, "在按一次退出系统", Toast.LENGTH_LONG).show();
+            mExitTime = System.currentTimeMillis();
+        } else {
+            this.finish();
+        }
+
+
+    }
 }

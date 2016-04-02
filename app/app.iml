@@ -114,8 +114,8 @@
     <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
     <orderEntry type="module" module-name="commons-io-2.4" exported="" />
     <orderEntry type="module" module-name="materialprogressbarlib" exported="" />
-    <orderEntry type="module" module-name="commons-net-3.3" exported="" />
     <orderEntry type="module" module-name="ftp4j-1.7.2" exported="" />
+    <orderEntry type="module" module-name="commons-net-3.3" exported="" />
     <orderEntry type="module" module-name="mupdflibrary" exported="" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">

@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.Scroller;
 
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 
 public class ReaderView
         extends AdapterView<Adapter>
@@ -671,7 +670,8 @@ public class ReaderView
 
     @Override
     public View getSelectedView() {
-        throw new UnsupportedOperationException(getContext().getString(R.string.not_supported));
+        //throw new UnsupportedOperationException(getContext().getString(R.string.not_supported));
+        return null;
     }
 
     @Override
@@ -684,7 +684,7 @@ public class ReaderView
 
     @Override
     public void setSelection(int arg0) {
-        throw new UnsupportedOperationException(getContext().getString(R.string.not_supported));
+        return;
     }
 
     private View getCached() {
@@ -817,7 +817,7 @@ public class ReaderView
             case MOVING_DOWN:
                 return bounds.bottom >= 0;
             default:
-                throw new NoSuchElementException();
+                return false;
         }
     }
 }
