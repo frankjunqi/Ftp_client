@@ -12,6 +12,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,7 +28,10 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -136,6 +140,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         deleteDirectory(Environment.getExternalStorageDirectory() + EWIPATH + File.separator);
         ButterKnife.bind(this);
@@ -236,7 +241,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         EwiLoginService service = retrofit.create(EwiLoginService.class);
-        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", deviceId);
+        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", "test");
         allMachineResBodyCall.enqueue(new Callback<EwiResBody>() {
             @Override
             public void onResponse(Call<EwiResBody> call, Response<EwiResBody> response) {
@@ -318,6 +323,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    private String fileName = Environment.getExternalStorageDirectory() + EWIPATH + File.separator + "error.txt";
+
+    //保存字符串到文件中
+    private void saveAsFileWriter(String content) {
+        try {
+            File fileF = new File(fileName);
+            fileF.createNewFile();
+        } catch (Exception exp) {
+
+        }
+        FileWriter fwriter = null;
+        try {
+            fwriter = new FileWriter(fileName);
+            fwriter.write(content);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                fwriter.flush();
+                fwriter.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     /**
      * ftp task 的post的值
      */
@@ -343,6 +374,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mFTPClient.login(FTP_USER, FTP_PASS);
                 mFTPClient.enterLocalPassiveMode();
                 mFTPClient.changeWorkingDirectory(EWIPATH);
+                //mFTPClient.setReceiveBufferSize(1024);
 
                 // Action with files
                 switch (params[0]) {
@@ -375,11 +407,37 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             pdfFile.delete();
                         }
                         pdfFile.createNewFile();
-                        FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath);
-                        boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
-                        taskDate.resultFlag = isOk ? FILEDOWNOK : FILEDOWNERROR;
+
+
+                        FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath, true);
+                        // boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
+                        InputStream inputStream = mFTPClient.retrieveFileStream(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath);
+                        long step = inputStream.available() / 100;
+                        long process = 0;
+                        long currentSize = 0;
+                        byte[] b = new byte[1024];
+                        int length = 0;
+                        while ((length = inputStream.read(b)) != -1) {
+                            fos.write(b, 0, length);
+                            currentSize = currentSize + length;
+                            /*if (currentSize / step != process) {
+                                process = currentSize / step;
+                                // 每隔%5的进度返回一次
+                                //进度
+                                Log.e(TAG, process + "进度");
+                            }*/
+                        }
+
                         fos.flush();
                         fos.close();
+                        inputStream.close();
+                        if (mFTPClient.completePendingCommand()) {
+                            Log.e(TAG, "success" + pdfPath);
+                            taskDate.resultFlag = FILEDOWNOK;
+                        } else {
+                            Log.e(TAG, "failed" + pdfPath);
+                            taskDate.resultFlag = FILEDOWNERROR;
+                        }
                         break;
                     }
                 }
