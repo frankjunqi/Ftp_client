@@ -2,7 +2,6 @@ package baranek.vojtech.ftpclient;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,7 +32,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +107,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     TextView tv_product;
     @Bind(R.id.iv_logo)
     ImageView iv_logo;
+    @Bind(R.id.tv_order)
+    TextView tv_order;
 
     private MyRecyclerAdapter adapter;
     private FTPFile[] files;
@@ -116,6 +116,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     // 接口请求的数据
     private String MachineCode = "";//设备代码
     private String PN = "";//零件号
+    private String PO = "";//订单号
     private String CustName = "";
     private String MachineName = "";
     private String deviceId = "";
@@ -164,7 +165,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         // init height
         titleLineView = new TitleLineView(MainActivity.this);
-        titleLineView.setTitle("产品文档");
+        titleLineView.setTitle("E-WI");
         ll_title.addView(titleLineView);
         ll_content.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, heightpix * 8 / 9));
         ll_bottom.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 18));
@@ -196,7 +197,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
             public void run() {
                 switch (currentErrorFlag) {
                     case NOREGISTEDEVICE: {
-                        Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
+                        tv_progress_desc.setText("联系管理员关联本机设备，并显示本机设备唯一码...");
+                        return;
+                    }
+                    case NONETWORK: {
+                        tv_progress_desc.setText("网络出现异常，请检查网络链接...");
                         return;
                     }
                 }
@@ -282,11 +287,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     String tempPN = response.body().d.Data.PN;
                     CustName = response.body().d.Data.CustName;
                     MachineName = response.body().d.Data.MachineName;
+                    PO = response.body().d.Data.PO;
                     String CustLogo = response.body().d.Data.CustLogo;
 
                     tv_custname.setText(CustName);
                     tv_machinename.setText(MachineName);
                     tv_product.setText(tempPN);
+                    tv_order.setText(PO);
 
                     Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
                     iv_show_fresco.setImageURI(uri);
@@ -308,7 +315,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
                 } else {
                     currentErrorFlag = NOREGISTEDEVICE;
-                    Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
+                    tv_progress_desc.setText("联系管理员关联本机设备，并显示本机设备唯一码...");
+                    // Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                 }
             }
@@ -316,7 +324,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void onFailure(Call<EwiResBody> call, Throwable throwable) {
                 currentErrorFlag = NONETWORK;
-                Toast.makeText(MainActivity.this, "网络出现异常，请检查网络链接", Toast.LENGTH_LONG).show();
+                tv_progress_desc.setText("网络出现异常，请检查网络链接...");
+                // Toast.makeText(MainActivity.this, "网络出现异常，请检查网络链接", Toast.LENGTH_LONG).show();
                 requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
             }
         });
@@ -356,13 +365,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void openPdf(int number) {
         // 远程文件目录
         if (files == null || files.length == 0) {
-            Toast.makeText(MainActivity.this, "远程文件为空，维护后，请刷新当前页面。", Toast.LENGTH_LONG).show();
+            tv_progress_desc.setText("远程文件为空，维护后，请刷新当前页面...");
+            // Toast.makeText(MainActivity.this, "远程文件为空，维护后，请刷新当前页面。", Toast.LENGTH_LONG).show();
             return;
         }
 
         // 是否存在索引文件
         if (number >= files.length) {
-            Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
+            tv_progress_desc.setText("文件暂不存在...");
+            // Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -384,7 +395,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if (file.exists()) {
             initPDF(localPdfFile);
         } else {
-            Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
+            tv_progress_desc.setText("文件暂不存在...");
+            // Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -535,14 +547,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
             switch (taskDate.resultFlag) {
                 case NOFILEERROR: {
                     // 远程文件不存在的情况下，10s后进行重新请求pn号
-                    tv_progress_desc.setText("远程文件资料不存在，请及时维护。");
+                    tv_progress_desc.setText("远程文件资料不存在，请及时维护...");
                     // Toast.makeText(getApplicationContext(), "远程文件资料不存在，请及时维护。", Toast.LENGTH_SHORT).show();
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                     break;
                 }
                 case FILECHECKOK: {
                     // 远程文件有数据do nothing
-                    tv_progress_desc.setText("获取远程列表成功，开始进行下载文件");
+                    tv_progress_desc.setText("获取远程列表成功，开始进行下载文件...");
                     // Toast.makeText(getApplicationContext(), "获取远程列表成功，开始进行下载文件", Toast.LENGTH_SHORT).show();
                     for (int i = 0; files != null && i < files.length && i < buttonList.size(); i++) {
                         Log.e(TAG, files[i].getName());
@@ -553,7 +565,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 case FILEDOWNOK: {
                     // 文件下载完成并且打开
-                    tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成");
+                    tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成.");
                     // Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
                     for (int i = 0; i < files.length && i < buttonList.size(); i++) {
                         if (files[i].getName().equals(taskDate.pdfPath)) {
@@ -576,12 +588,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             file.delete();
                         }
                     }
-                    tv_progress_desc.setText("远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。");
+                    tv_progress_desc.setText("远程文件" + taskDate.pdfPath + "下载失败，请重新尝试...");
                     // Toast.makeText(getApplicationContext(), "远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case NONETWORK: {
-                    tv_progress_desc.setText("网络出现异常，请检查网络链接");
+                    tv_progress_desc.setText("网络出现异常，请检查网络链接...");
                     // Toast.makeText(getApplicationContext(), "网络出现异常，请检查网络链接", Toast.LENGTH_SHORT).show();
                     break;
                 }
@@ -593,7 +605,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             file.delete();
                         }
                     }
-                    tv_progress_desc.setText("文件下载出现异常，请重新下载");
+                    tv_progress_desc.setText("文件下载出现异常，请重新下载...");
                     // Toast.makeText(getApplicationContext(), "pdf下载出现异常，请重新下载", Toast.LENGTH_SHORT).show();
                     break;
                 }

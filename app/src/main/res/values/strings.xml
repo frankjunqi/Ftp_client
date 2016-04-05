@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FTP client</string>
+    <string name="app_name">E-WI Client</string>
     <string name="potvrdit">Confirm</string>
     <string name="data_load_failed">Unable to load data</string>
     <string name="action_failed">Unable to finish requested action</string>
