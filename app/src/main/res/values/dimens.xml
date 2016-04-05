@@ -5,4 +5,51 @@
 
     <dimen name="screen_edge_horizontal_margin">16dp</dimen>
     <dimen name="screen_edge_vertical_margin">16dp</dimen>
+
+
+    <!-- PADDINGS -->
+    <dimen name="padding_none">0dp</dimen>
+    <dimen name="padding_small">2dp</dimen>
+    <dimen name="padding_medium">4dp</dimen>
+    <dimen name="padding_extra_large">48dp</dimen>
+
+    <dimen name="cicle_width">20dp</dimen>
+
+    <dimen name="logo_width">30dp</dimen>
+    <dimen name="logo_margin_width">34dp</dimen>
+
+
+    <!--字体大小-->
+    <dimen name="title_text_size">12sp</dimen>
+    <dimen name="middle_text_size">12sp</dimen>
+
+
+    <!--看板的间隔距离-->
+    <dimen name="padding_left">8dp</dimen>
+    <dimen name="padding_right">10dp</dimen>
+    <dimen name="padding_top">10dp</dimen>
+    <dimen name="padding_bottom">10dp</dimen>
+
+
+    <dimen name="title_title_size">10sp</dimen>
+
+    <dimen name="botton_title_size">10sp</dimen>
+    <dimen name="page_title_size">10sp</dimen>
+    <dimen name="page_loder_size">10sp</dimen>
+
+
+    <dimen name="botton_margin_top">14dp</dimen>
+    <dimen name="botton_middle_margin_top">6dp</dimen>
+    <dimen name="botton_middle_margin_left">4dp</dimen>
+    <dimen name="botton_middle_margin_right">4dp</dimen>
+
+
+    <dimen name="title_small_size">10sp</dimen>
+    <dimen name="title_time_size">10sp</dimen>
+    <dimen name="title_notice_size">12sp</dimen>
+
+
+    <dimen name="big_text_size">16sp</dimen>
+    <dimen name="cell_data_text_size">18sp</dimen>
+    <dimen name="small_text_size">18sp</dimen>
 </resources>

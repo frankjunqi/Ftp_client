@@ -48,12 +48,12 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Cu
         /**
          * Is directory
          */ {
-            holder.imageView.setBackgroundResource(R.mipmap.ic_ftp_launcher);
+            holder.imageView.setBackgroundResource(R.drawable.ic_ftp_launcher);
         } else {
             /**
              * is file
              */
-            holder.imageView.setBackgroundResource(R.mipmap.ic_ftp_launcher);
+            holder.imageView.setBackgroundResource(R.drawable.ic_ftp_launcher);
         }
 
         holder.tv1.setText(String.valueOf(files[position].getName()));

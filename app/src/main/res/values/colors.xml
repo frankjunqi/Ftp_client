@@ -17,6 +17,7 @@
 
     <color name="divider">#B6B6B6</color>
 
+    <color name="main_white">#ffffffff</color>
 
     <color name="primary_darkBL">#388E3C</color>
 
@@ -25,6 +26,24 @@
     <color name="accentBL">#009688</color>
 
     <color name="bcgBL">#F1F8E9</color>
+
+    <color name="holo_red_light">#ffff4444</color>
+    <color name="holo_green_dark">#ff669900</color>
+    <color name="holo_orange_dark">#ffff8800</color>
+    <color name="holo_blue_bright">#ff00ddff</color>
+
+
+    <color name="title_dark">#ff313131</color>
+    <color name="title_green">#ff007130</color>
+    <color name="title_blue">#ff0076a2</color>
+
+    <color name="bg_content_drak">#ffeeeeee</color>
+    <color name="bg_content_light">#ffffffff</color>
+
+    <color name="bg_content_left">#ffe7e7e7</color>
+    <color name="bg_content_middle">#ffa0a0a0</color>
+    <color name="bg_content_right">#ffe7e7e7</color>
+
 
 
 </resources>

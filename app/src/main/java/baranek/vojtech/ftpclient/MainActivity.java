@@ -2,6 +2,7 @@ package baranek.vojtech.ftpclient;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,12 +36,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import baranek.vojtech.ftpclient.api.EwiLoginService;
 import baranek.vojtech.ftpclient.api.Host;
 import baranek.vojtech.ftpclient.entity.EwiResBody;
 import baranek.vojtech.ftpclient.gsonfactory.GsonConverterFactory;
+import baranek.vojtech.ftpclient.view.TitleLineView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -73,36 +77,38 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Bind(R.id.progress)
     MaterialProgressBar progress;
-
     @Bind(R.id.btn_right_1)
     Button btn_right_1;
-
     @Bind(R.id.btn_right_2)
     Button btn_right_2;
-
     @Bind(R.id.btn_right_3)
     Button btn_right_3;
-
     @Bind(R.id.btn_right_4)
     Button btn_right_4;
-
     @Bind(R.id.ll_pdf)
     LinearLayout ll_pdf;
-
     @Bind(R.id.tv_custname)
     TextView tv_custname;
-
     @Bind(R.id.tv_machinename)
     TextView tv_machinename;
-
     @Bind(R.id.tv_deviceid)
     TextView tv_deviceid;
-
     @Bind(R.id.iv_show_fresco)
     SimpleDraweeView iv_show_fresco;
-
     @Bind(R.id.tv_countpage)
     TextView tv_countpage;
+    @Bind(R.id.ll_title)
+    LinearLayout ll_title;
+    @Bind(R.id.ll_bottom)
+    LinearLayout ll_bottom;
+    @Bind(R.id.ll_content)
+    LinearLayout ll_content;
+    @Bind(R.id.tv_progress_desc)
+    TextView tv_progress_desc;
+    @Bind(R.id.tv_product)
+    TextView tv_product;
+    @Bind(R.id.iv_logo)
+    ImageView iv_logo;
 
     private MyRecyclerAdapter adapter;
     private FTPFile[] files;
@@ -117,6 +123,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private MuPDFCore core;
     private int totalPage = 0;
     private int currentPage = 1;
+
+    private TitleLineView titleLineView;
 
 
     private ArrayList<Button> buttonList = new ArrayList<>();
@@ -145,6 +153,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
         deleteDirectory(Environment.getExternalStorageDirectory() + EWIPATH + File.separator);
         ButterKnife.bind(this);
         deviceId = getDeviceId();
+
+        // 计算高度
+        WindowManager wm = (WindowManager) getApplication()
+                .getSystemService(Context.WINDOW_SERVICE);
+
+        int heightpix = wm.getDefaultDisplay().getHeight();
+        int height = heightpix / 9 - 18;
+
+
+        // init height
+        titleLineView = new TitleLineView(MainActivity.this);
+        titleLineView.setTitle("产品文档");
+        ll_title.addView(titleLineView);
+        ll_content.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, heightpix * 8 / 9));
+        ll_bottom.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 18));
+
+
         btn_right_1.setOnClickListener(this);
         btn_right_2.setOnClickListener(this);
         btn_right_3.setOnClickListener(this);
@@ -159,33 +184,39 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (core != null) {
             core.onDestroy();
             core = null;
         }
         ll_pdf.removeAllViews();
-        switch (currentErrorFlag) {
-            case NOREGISTEDEVICE: {
-                Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
-                return;
-            }
-        }
-        switch (v.getId()) {
-            case R.id.btn_right_1:
-                openPdf(0);
-                break;
-            case R.id.btn_right_2:
-                openPdf(1);
-                break;
-            case R.id.btn_right_3:
-                openPdf(2);
-                break;
-            case R.id.btn_right_4:
-                openPdf(3);
-                break;
+        tv_countpage.setText("");
+        requestHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                switch (currentErrorFlag) {
+                    case NOREGISTEDEVICE: {
+                        Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+                switch (v.getId()) {
+                    case R.id.btn_right_1:
+                        openPdf(0);
+                        break;
+                    case R.id.btn_right_2:
+                        openPdf(1);
+                        break;
+                    case R.id.btn_right_3:
+                        openPdf(2);
+                        break;
+                    case R.id.btn_right_4:
+                        openPdf(3);
+                        break;
 
-        }
+                }
+            }
+        }, 300);
 
     }
 
@@ -255,9 +286,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                     tv_custname.setText(CustName);
                     tv_machinename.setText(MachineName);
+                    tv_product.setText(tempPN);
 
                     Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
                     iv_show_fresco.setImageURI(uri);
+
+                    handleMarqueeText(response.body().d.MsgList);
 
                     // 判断pn是否发生变化，有变化需要更新远程files
                     if (!PN.equals(tempPN) || files == null || files.length == 0) {
@@ -288,6 +322,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
         });
     }
 
+    /**
+     * 处理滚动的字幕
+     */
+    private void handleMarqueeText(List<String> marqueeText) {
+        if (marqueeText != null && marqueeText.size() > 0) {
+            String showDate = "";
+            if (marqueeText != null) {
+                for (int i = 0; i < marqueeText.size(); i++) {
+                    showDate = showDate + marqueeText.get(i);
+                }
+                // 判断现实的文案是否一样
+                if (showDate.equals(titleLineView.getNoticContent())) {
+                    return;
+                }
+                titleLineView.setNoticeContent(showDate);
+            }
+        }
+
+    }
+
     // Download file method
     private void DownloadFile(String MachineCode, String PN, int number) {
         AssyncFtpTaskActions assyncFtpTaskActions = new AssyncFtpTaskActions();
@@ -310,6 +364,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if (number >= files.length) {
             Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
             return;
+        }
+
+        // 设置按钮的颜色
+        for (int i = 0; i < buttonList.size(); i++) {
+            if (number == i) {
+                buttonList.get(i).setBackgroundResource(R.drawable.bg_tab_sel);
+                buttonList.get(i).setTextColor(getResources().getColor(R.color.main_white));
+            } else {
+                buttonList.get(i).setBackgroundResource(R.drawable.bg_tab);
+                buttonList.get(i).setTextColor(getResources().getColor(R.color.title_dark));
+            }
         }
 
         // 判断本地是否有文件
@@ -457,6 +522,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         @Override
         protected void onPreExecute() {
             progress.setVisibility(View.VISIBLE);
+            tv_progress_desc.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
         }
 
@@ -469,13 +535,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
             switch (taskDate.resultFlag) {
                 case NOFILEERROR: {
                     // 远程文件不存在的情况下，10s后进行重新请求pn号
-                    Toast.makeText(getApplicationContext(), "远程文件资料不存在，请及时维护。", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("远程文件资料不存在，请及时维护。");
+                    // Toast.makeText(getApplicationContext(), "远程文件资料不存在，请及时维护。", Toast.LENGTH_SHORT).show();
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                     break;
                 }
                 case FILECHECKOK: {
                     // 远程文件有数据do nothing
-                    Toast.makeText(getApplicationContext(), "获取远程列表成功，开始进行下载文件", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("获取远程列表成功，开始进行下载文件");
+                    // Toast.makeText(getApplicationContext(), "获取远程列表成功，开始进行下载文件", Toast.LENGTH_SHORT).show();
                     for (int i = 0; files != null && i < files.length && i < buttonList.size(); i++) {
                         Log.e(TAG, files[i].getName());
                         DownloadFile(MachineCode, PN, i);
@@ -485,15 +553,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 case FILEDOWNOK: {
                     // 文件下载完成并且打开
-                    Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成");
+                    // Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
                     for (int i = 0; i < files.length && i < buttonList.size(); i++) {
                         if (files[i].getName().equals(taskDate.pdfPath)) {
-                            buttonList.get(i).setText(taskDate.pdfPath);
-                            buttonList.get(i).setBackgroundColor(getResources().getColor(R.color.accentBL));
+                            /*buttonList.get(i).setText(taskDate.pdfPath);
+                            buttonList.get(i).setBackgroundColor(getResources().getColor(R.color.accentBL));*/
                         }
                     }
                     if (new File(Environment.getExternalStorageDirectory() + EWIPATH + File.separator).list().length == 4) {
-                        progress.setVisibility(View.GONE);
+                        progress.setVisibility(View.INVISIBLE);
+                        tv_progress_desc.setVisibility(View.INVISIBLE);
                     }
                     break;
                 }
@@ -506,11 +576,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             file.delete();
                         }
                     }
-                    Toast.makeText(getApplicationContext(), "远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。");
+                    // Toast.makeText(getApplicationContext(), "远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case NONETWORK: {
-                    Toast.makeText(getApplicationContext(), "网络出现异常，请检查网络链接", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("网络出现异常，请检查网络链接");
+                    // Toast.makeText(getApplicationContext(), "网络出现异常，请检查网络链接", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case PDFNERROR: {
@@ -521,7 +593,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             file.delete();
                         }
                     }
-                    Toast.makeText(getApplicationContext(), "pdf下载出现异常，请重新下载", Toast.LENGTH_SHORT).show();
+                    tv_progress_desc.setText("文件下载出现异常，请重新下载");
+                    // Toast.makeText(getApplicationContext(), "pdf下载出现异常，请重新下载", Toast.LENGTH_SHORT).show();
                     break;
                 }
             }

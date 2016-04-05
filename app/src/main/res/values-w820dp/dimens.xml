@@ -3,4 +3,51 @@
          (such as screen margins) for screens with more than 820dp of available width. This
          would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
     <dimen name="activity_horizontal_margin">64dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_vertical_margin">0dp</dimen>
+
+    <!-- PADDINGS -->
+    <dimen name="padding_none">0dp</dimen>
+    <dimen name="padding_small">2dp</dimen>
+    <dimen name="padding_medium">4dp</dimen>
+    <dimen name="padding_extra_large">48dp</dimen>
+
+    <dimen name="cicle_width">30dp</dimen>
+
+
+    <dimen name="logo_width">30dp</dimen>
+    <dimen name="logo_margin_width">34dp</dimen>
+
+    <!--table title text size-->
+    <dimen name="title_text_size">22sp</dimen>
+    <dimen name="middle_text_size">22sp</dimen>
+
+    <dimen name="botton_title_size">18sp</dimen>
+
+    <dimen name="title_title_size">18sp</dimen>
+
+    <dimen name="title_small_size">10sp</dimen>
+    <dimen name="title_time_size">16sp</dimen>
+    <dimen name="title_notice_size">16sp</dimen>
+
+    <dimen name="page_title_size">8sp</dimen>
+    <dimen name="page_loder_size">10sp</dimen>
+
+    <!--看板的间隔距离-->
+    <dimen name="padding_left">10dp</dimen>
+    <dimen name="padding_right">10dp</dimen>
+
+    <dimen name="padding_top">14dp</dimen>
+    <dimen name="padding_bottom">14dp</dimen>
+
+
+    <dimen name="botton_margin_top">24dp</dimen>
+    <dimen name="botton_middle_margin_top">18dp</dimen>
+    <dimen name="botton_middle_margin_left">4dp</dimen>
+    <dimen name="botton_middle_margin_right">4dp</dimen>
+
+
+    <dimen name="big_text_size">22sp</dimen>
+    <dimen name="cell_data_text_size">22sp</dimen>
+    <dimen name="small_text_size">22sp</dimen>
 </resources>

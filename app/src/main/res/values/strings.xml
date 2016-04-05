@@ -44,4 +44,12 @@
     <string name="about_version_format">Version %1$s</string>
     <string name="about_credit">Zhang Hai 2015</string>
     <string name="about_github"><a href="https://github.com/DreaminginCodeZH/MaterialProgressBar">View on GitHub</a></string>
+
+
+    <!-- 字符串匹配的锁定屏幕显示日期的格式. MM/dd/yyy-->
+    <string name="abbrev_wday_month_day_no_year">yyyy/MM/dd</string>
+    <!-- Format for describing the date, for accessibility. -->
+    <string name="full_wday_month_day_no_year">EEEE, MMMM d</string>
+
+
 </resources>
