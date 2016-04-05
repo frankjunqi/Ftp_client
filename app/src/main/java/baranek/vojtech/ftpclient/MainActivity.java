@@ -189,8 +189,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
             core.onDestroy();
             core = null;
         }
+        iv_logo.setVisibility(View.INVISIBLE);
         progress.setVisibility(View.INVISIBLE);
         ll_pdf.removeAllViews();
+        totalPage = 1;
+        currentPage = 1;
         tv_countpage.setText("");
         requestHandler.postDelayed(new Runnable() {
             @Override
@@ -221,7 +224,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                 }
             }
-        }, 300);
+        }, 100);
 
     }
 
@@ -452,7 +455,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mFTPClient.login(FTP_USER, FTP_PASS);
                 mFTPClient.enterLocalPassiveMode();
                 mFTPClient.changeWorkingDirectory(EWIPATH);
-                //mFTPClient.setReceiveBufferSize(1024);
+                mFTPClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                mFTPClient.setFileTransferMode(FTPClient.STREAM_TRANSFER_MODE);
+                mFTPClient.enterLocalPassiveMode(); //开启本地被动模式
 
                 // Action with files
                 switch (params[0]) {
@@ -488,27 +493,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 
                         FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath, true);
-                        // boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
+                        //boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
                         InputStream inputStream = mFTPClient.retrieveFileStream(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath);
-                        long step = inputStream.available() / 100;
-                        long process = 0;
                         long currentSize = 0;
                         byte[] b = new byte[1024];
                         int length = 0;
                         while ((length = inputStream.read(b)) != -1) {
                             fos.write(b, 0, length);
                             currentSize = currentSize + length;
-                            /*if (currentSize / step != process) {
-                                process = currentSize / step;
-                                // 每隔%5的进度返回一次
-                                //进度
-                                Log.e(TAG, process + "进度");
-                            }*/
                         }
+                        inputStream.close();
 
                         fos.flush();
                         fos.close();
-                        inputStream.close();
                         if (mFTPClient.completePendingCommand()) {
                             Log.e(TAG, "success" + pdfPath);
                             taskDate.resultFlag = FILEDOWNOK;
