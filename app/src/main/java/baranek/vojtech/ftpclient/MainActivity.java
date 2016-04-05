@@ -160,15 +160,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 .getSystemService(Context.WINDOW_SERVICE);
 
         int heightpix = wm.getDefaultDisplay().getHeight();
-        int height = heightpix / 9 - 18;
-
 
         // init height
         titleLineView = new TitleLineView(MainActivity.this);
         titleLineView.setTitle("E-WI");
-        ll_title.addView(titleLineView);
-        ll_content.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, heightpix * 8 / 9));
+
+        ll_title.addView(titleLineView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (heightpix - 18) / 9));
         ll_bottom.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 18));
+        ll_content.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, heightpix - 18 - (heightpix - 18) / 9));
 
 
         btn_right_1.setOnClickListener(this);
@@ -190,6 +189,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             core.onDestroy();
             core = null;
         }
+        progress.setVisibility(View.INVISIBLE);
         ll_pdf.removeAllViews();
         tv_countpage.setText("");
         requestHandler.postDelayed(new Runnable() {
@@ -229,10 +229,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void initPDF(String mFilePath) {
         core = openFile(Uri.decode(mFilePath));
         if (core != null && core.countPages() == 0) {
-
+            return;
         }
         if (core == null || core.countPages() == 0 || core.countPages() == -1) {
             Log.e(TAG, "Document Not Opening");
+            return;
         }
         if (core != null) {
             MuPDFReaderView mDocView = new MuPDFReaderView(MainActivity.this) {
@@ -568,7 +569,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成.");
                     // Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
                     for (int i = 0; i < files.length && i < buttonList.size(); i++) {
-                        if (files[i].getName().equals(taskDate.pdfPath)) {
+                        if (files[0].getName().equals(taskDate.pdfPath)) {
+                            // openPdf(0);
+                            onClick(buttonList.get(0));
                             /*buttonList.get(i).setText(taskDate.pdfPath);
                             buttonList.get(i).setBackgroundColor(getResources().getColor(R.color.accentBL));*/
                         }

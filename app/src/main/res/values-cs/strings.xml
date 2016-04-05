@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FTP klient</string>
+    <string name="app_name">E-WI Client</string>
     <string name="potvrdit">Potvrdit</string>
     <string name="data_load_failed">Nepodařilo se načíst data</string>
     <string name="action_failed">Nepodařilo se provést požadovanou akci</string>

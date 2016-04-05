@@ -179,8 +179,12 @@ public class MuPDFCore {
                                         int patchX, int patchY,
                                         int patchW, int patchH) {
         gotoPage(page);
-        Bitmap bm = Bitmap.createBitmap(patchW, patchH, Config.ARGB_8888);
-        drawPage(bm, pageW, pageH, patchX, patchY, patchW, patchH);
+        Bitmap bm = null;
+        try {
+            bm = Bitmap.createBitmap(patchW, patchH, Config.ARGB_8888);
+            drawPage(bm, pageW, pageH, patchX, patchY, patchW, patchH);
+        } catch (Exception e) {
+        }
         return bm;
     }
 

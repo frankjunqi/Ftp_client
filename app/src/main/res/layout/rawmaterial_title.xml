@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right|center_vertical"
             android:layout_weight="1"
-            android:src="@drawable/ic_ftp_launcher" />
+            android:src="@drawable/logo" />
 
         <TextView
             android:id="@+id/tv_title"
