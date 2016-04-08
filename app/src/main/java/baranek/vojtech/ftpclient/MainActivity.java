@@ -54,7 +54,7 @@ import retrofit2.Retrofit;
 public class MainActivity extends Activity implements View.OnClickListener {
 
     private final String TAG = getClass().getSimpleName();
-    private String FTP_HOST = "27.54.248.35", FTP_USER = "MES", FTP_PASS = "";
+    private String FTP_USER = "MES", FTP_PASS = "";
     private final String EWIPATH = "/EWI";// 本地建立的文件夹的根目录
 
 
@@ -301,9 +301,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     tv_product.setText(tempPN);
                     tv_order.setText(PO);
 
-                    if(TextUtils.isEmpty(CustLogo)){
+                    if (TextUtils.isEmpty(CustLogo)) {
                         iv_show_fresco.setVisibility(View.GONE);
-                    }else{
+                    } else {
                         iv_show_fresco.setVisibility(View.VISIBLE);
                         Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
                         iv_show_fresco.setImageURI(uri);
@@ -458,7 +458,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             try {
                 // Establish connection
                 mFTPClient.setControlEncoding("UTF-8");
-                mFTPClient.connect(FTP_HOST, 6888);
+                mFTPClient.connect(Host.FTPHOST, Host.FTPHOSTIPTABLES);
                 mFTPClient.login(FTP_USER, FTP_PASS);
                 mFTPClient.enterLocalPassiveMode();
                 mFTPClient.changeWorkingDirectory(EWIPATH);

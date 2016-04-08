@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import baranek.vojtech.ftpclient.api.Host;
 
 /**
@@ -18,6 +20,8 @@ import baranek.vojtech.ftpclient.api.Host;
 public class SettingActivity extends Activity implements View.OnClickListener {
 
     private EditText et_request_time;
+    private EditText et_ftp_host;
+    private EditText et_ftp_host_iptables;
     private EditText et_host;
 
     private Button activity_setting;
@@ -32,6 +36,8 @@ public class SettingActivity extends Activity implements View.OnClickListener {
 
 
         et_host = (EditText) findViewById(R.id.et_host);
+        et_ftp_host = (EditText) findViewById(R.id.et_ftp_host);
+        et_ftp_host_iptables = (EditText) findViewById(R.id.et_ftp_host_iptables);
         et_request_time = (EditText) findViewById(R.id.et_request_time);
 
         String host = getSP(Host.KWYHOST);
@@ -41,6 +47,19 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             et_host.setText(host);
         }
 
+        String ftphost = getSP(Host.KWYFTPHOST);
+        if (TextUtils.isEmpty(ftphost)) {
+            et_ftp_host.setText(Host.FTPHOST);
+        } else {
+            et_ftp_host.setText(ftphost);
+        }
+
+        String ftphostiptables = getSP(Host.KWYFTPHOSTIPTABLES);
+        if (TextUtils.isEmpty(ftphostiptables)) {
+            et_ftp_host_iptables.setText(String.valueOf(Host.FTPHOSTIPTABLES));
+        } else {
+            et_ftp_host_iptables.setText(ftphostiptables);
+        }
 
     }
 
@@ -79,11 +98,29 @@ public class SettingActivity extends Activity implements View.OnClickListener {
 
     private void initSetting() {
         String host = et_host.getText().toString();
+        String ftphost = et_ftp_host.getText().toString();
+        String ftphostiptables = et_ftp_host_iptables.getText().toString();
+
         String request_time = et_request_time.getText().toString();
         if (!TextUtils.isEmpty(host)) {
             // do  something
             Host.HOST = host;
             savaSP(Host.KWYHOST, host);
+        }
+
+        if (!TextUtils.isEmpty(ftphost)) {
+            Host.FTPHOST = ftphost;
+            savaSP(Host.KWYFTPHOST, ftphost);
+        }
+
+        if (!TextUtils.isEmpty(ftphostiptables)) {
+            int ftphostIp = Host.FTPHOSTIPTABLES;
+            try {
+                ftphostIp = Integer.parseInt(ftphostiptables);
+            } catch (Exception e) {
+            }
+            Host.FTPHOSTIPTABLES = ftphostIp;
+            savaSP(Host.KWYFTPHOSTIPTABLES,ftphostiptables);
         }
 
         int time = 10;
