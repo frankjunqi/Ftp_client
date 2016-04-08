@@ -16,8 +16,10 @@
         android:weightSum="2">
 
         <ImageView
+            android:id="@+id/iv_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/padding_left"
             android:layout_gravity="right|center_vertical"
             android:layout_weight="1"
             android:src="@drawable/logo" />
@@ -31,6 +33,7 @@
             android:gravity="left|center_vertical"
             android:singleLine="true"
             android:textColor="@color/main_white"
+            android:layout_marginLeft="@dimen/padding_left"
             android:textSize="@dimen/title_title_size"
             android:textStyle="bold" />
 
@@ -62,7 +65,8 @@
                 android:gravity="center"
                 android:text="现在时刻："
                 android:textColor="@color/main_white"
-                android:textSize="@dimen/title_small_size" />
+                android:textSize="@dimen/title_small_size"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,7 +129,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="28~29℃"
+                    android:text="18~19℃"
                     android:textColor="@color/main_white"
                     android:textSize="@dimen/title_time_size"
                     android:textStyle="bold" />
@@ -136,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginLeft="16dp"
-                android:src="@drawable/weather_1" />
+                android:src="@drawable/weather_icon" />
 
         </LinearLayout>
 
@@ -160,6 +164,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="left|center"
+            android:layout_marginLeft="@dimen/notice_icon_margin_left"
             android:src="@drawable/notice_icon" />
 
         <baranek.vojtech.ftpclient.view.MarqueeTextView

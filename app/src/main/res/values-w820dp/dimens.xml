@@ -24,18 +24,9 @@
 
     <dimen name="botton_title_size">18sp</dimen>
 
-    <dimen name="title_title_size">18sp</dimen>
 
-    <dimen name="title_small_size">10sp</dimen>
-    <dimen name="title_time_size">16sp</dimen>
-    <dimen name="title_notice_size">16sp</dimen>
-
-    <dimen name="page_title_size">8sp</dimen>
-    <dimen name="page_loder_size">10sp</dimen>
-
-    <!--看板的间隔距离-->
-    <dimen name="padding_left">10dp</dimen>
-    <dimen name="padding_right">10dp</dimen>
+    <dimen name="page_title_size">14sp</dimen>
+    <dimen name="page_loder_size">20sp</dimen>
 
     <dimen name="padding_top">14dp</dimen>
     <dimen name="padding_bottom">14dp</dimen>
@@ -50,4 +41,21 @@
     <dimen name="big_text_size">22sp</dimen>
     <dimen name="cell_data_text_size">22sp</dimen>
     <dimen name="small_text_size">22sp</dimen>
+
+
+    <dimen name="title_title_size">23sp</dimen>
+
+    <dimen name="title_small_size">15sp</dimen>
+    <dimen name="title_time_size">21sp</dimen>
+    <dimen name="title_notice_size">22sp</dimen>
+
+
+    <!--看板的间隔距离-->
+    <dimen name="padding_left">18dp</dimen>
+    <dimen name="text_padding_left">8dp</dimen>
+    <dimen name="padding_right">10dp</dimen>
+
+    <dimen name="notice_icon_margin_left">10dp</dimen>
+
+
 </resources>

@@ -200,10 +200,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
             public void run() {
                 switch (currentErrorFlag) {
                     case NOREGISTEDEVICE: {
-                        tv_progress_desc.setText("联系管理员关联本机设备，并显示本机设备唯一码...");
+                        iv_logo.setVisibility(View.VISIBLE);
+                        tv_progress_desc.setText("联系管理员关联该设备\n设备唯一码:" + deviceId);
                         return;
                     }
                     case NONETWORK: {
+                        iv_logo.setVisibility(View.VISIBLE);
                         tv_progress_desc.setText("网络出现异常，请检查网络链接...");
                         return;
                     }
@@ -299,14 +301,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     tv_product.setText(tempPN);
                     tv_order.setText(PO);
 
-                    Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
-                    iv_show_fresco.setImageURI(uri);
+                    if(TextUtils.isEmpty(CustLogo)){
+                        iv_show_fresco.setVisibility(View.GONE);
+                    }else{
+                        iv_show_fresco.setVisibility(View.VISIBLE);
+                        Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
+                        iv_show_fresco.setImageURI(uri);
+                    }
 
-                    handleMarqueeText(response.body().d.MsgList);
+                    handleMarqueeText(response.body().d.Data.Msg);
 
                     // 判断pn是否发生变化，有变化需要更新远程files
                     if (TextUtils.isEmpty(tempPN)) {
-                        tv_progress_desc.setText("PN为null,请检查设备的配置");
+                        tv_progress_desc.setText("设备空闲，无展示信息。");
                         requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                     } else if (!PN.equals(tempPN) || files == null || files.length == 0) {
                         PN = tempPN;
@@ -322,7 +329,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
                 } else {
                     currentErrorFlag = NOREGISTEDEVICE;
-                    tv_progress_desc.setText("联系管理员关联本机设备，并显示本机设备唯一码...");
+                    tv_progress_desc.setText("联系管理员关联该设备\n设备唯一码:" + deviceId);
                     // Toast.makeText(MainActivity.this, "联系管理员关联本机设备，并显示本机设备唯一码。", Toast.LENGTH_LONG).show();
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                 }
@@ -373,14 +380,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
         // 远程文件目录
         if (files == null || files.length == 0) {
             tv_progress_desc.setText("远程文件为空，维护后，请刷新当前页面...");
-            // Toast.makeText(MainActivity.this, "远程文件为空，维护后，请刷新当前页面。", Toast.LENGTH_LONG).show();
             return;
         }
 
         // 是否存在索引文件
         if (number >= files.length) {
             tv_progress_desc.setText("文件暂不存在...");
-            // Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -403,7 +408,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
             initPDF(localPdfFile);
         } else {
             tv_progress_desc.setText("文件暂不存在...");
-            // Toast.makeText(MainActivity.this, "文件暂不存在", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -496,7 +500,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 
                         FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + EWIPATH + File.separator + pdfPath, true);
-                        //boolean isOk = mFTPClient.retrieveFile(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath, fos);
                         InputStream inputStream = mFTPClient.retrieveFileStream(EWIPATH + File.separator + machineCode + File.separator + pn + File.separator + pdfPath);
                         long currentSize = 0;
                         byte[] b = new byte[1024];
@@ -548,15 +551,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
             switch (taskDate.resultFlag) {
                 case NOFILEERROR: {
                     // 远程文件不存在的情况下，10s后进行重新请求pn号
-                    tv_progress_desc.setText("远程文件资料不存在，请及时维护...");
-                    // Toast.makeText(getApplicationContext(), "远程文件资料不存在，请及时维护。", Toast.LENGTH_SHORT).show();
+                    iv_logo.setVisibility(View.VISIBLE);
+                    tv_progress_desc.setText("远程文件资料不存在（/" + MachineCode + "/" + PN + ")");
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                     break;
                 }
                 case FILECHECKOK: {
                     // 远程文件有数据do nothing
                     tv_progress_desc.setText("获取远程列表成功，开始进行下载文件...");
-                    // Toast.makeText(getApplicationContext(), "获取远程列表成功，开始进行下载文件", Toast.LENGTH_SHORT).show();
                     for (int i = 0; files != null && i < files.length && i < buttonList.size(); i++) {
                         Log.e(TAG, files[i].getName());
                         DownloadFile(MachineCode, PN, i);
@@ -567,13 +569,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 case FILEDOWNOK: {
                     // 文件下载完成并且打开
                     tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成.");
-                    // Toast.makeText(getApplicationContext(), taskDate.pdfPath + "下载完成", Toast.LENGTH_SHORT).show();
                     for (int i = 0; i < files.length && i < buttonList.size(); i++) {
                         if (files[0].getName().equals(taskDate.pdfPath)) {
-                            // openPdf(0);
                             onClick(buttonList.get(0));
-                            /*buttonList.get(i).setText(taskDate.pdfPath);
-                            buttonList.get(i).setBackgroundColor(getResources().getColor(R.color.accentBL));*/
                         }
                     }
                     if (new File(Environment.getExternalStorageDirectory() + EWIPATH + File.separator).list().length == 4) {
@@ -592,12 +590,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         }
                     }
                     tv_progress_desc.setText("远程文件" + taskDate.pdfPath + "下载失败，请重新尝试...");
-                    // Toast.makeText(getApplicationContext(), "远程文件" + taskDate.pdfPath + "下载失败，请重新尝试。", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case NONETWORK: {
                     tv_progress_desc.setText("网络出现异常，请检查网络链接...");
-                    // Toast.makeText(getApplicationContext(), "网络出现异常，请检查网络链接", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case PDFNERROR: {
@@ -609,7 +605,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         }
                     }
                     tv_progress_desc.setText("文件下载出现异常，请重新下载...");
-                    // Toast.makeText(getApplicationContext(), "pdf下载出现异常，请重新下载", Toast.LENGTH_SHORT).show();
                     break;
                 }
             }
