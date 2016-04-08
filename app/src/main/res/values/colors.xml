@@ -45,5 +45,11 @@
     <color name="bg_content_right">#ffe7e7e7</color>
 
 
+    <color name="main_orange">#ffff6815</color>
+    <!-- 用于价格，警告 -->
+    <color name="main_orange_press">#fff25f0e</color>
+    <!-- 用于橘色按下的效果 -->
+    <color name="main_unclick">#ffFFC3A1</color>
+
 
 </resources>

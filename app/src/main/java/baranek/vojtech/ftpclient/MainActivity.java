@@ -281,7 +281,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         EwiLoginService service = retrofit.create(EwiLoginService.class);
-        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", "test");
+        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", deviceId);
         allMachineResBodyCall.enqueue(new Callback<EwiResBody>() {
             @Override
             public void onResponse(Call<EwiResBody> call, Response<EwiResBody> response) {
@@ -305,7 +305,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     handleMarqueeText(response.body().d.MsgList);
 
                     // 判断pn是否发生变化，有变化需要更新远程files
-                    if (!PN.equals(tempPN) || files == null || files.length == 0) {
+                    if (TextUtils.isEmpty(tempPN)) {
+                        tv_progress_desc.setText("PN为null,请检查设备的配置");
+                        requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
+                    } else if (!PN.equals(tempPN) || files == null || files.length == 0) {
                         PN = tempPN;
                         // delete file
                         deleteDirectory(Environment.getExternalStorageDirectory() + EWIPATH + File.separator);

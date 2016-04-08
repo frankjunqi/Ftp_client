@@ -20,7 +20,7 @@ public class MyApplication extends Application {
         super.onCreate();
         mInstance = this;
         Fresco.initialize(getApplicationContext());
-        CrashHandler crashHandler = CrashHandler.getInstance();
-        crashHandler.init(getApplicationContext());
+        // CrashHandler crashHandler = CrashHandler.getInstance();
+        // crashHandler.init(getApplicationContext());
     }
 }
