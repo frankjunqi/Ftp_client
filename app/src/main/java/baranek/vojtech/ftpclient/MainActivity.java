@@ -61,8 +61,6 @@ public class MainActivity extends Activity {
     private final String TAG = getClass().getSimpleName();
     private String FTP_USER = "MES", FTP_PASS = "";
     private final String EWIPATH = "/EWI";// 本地建立的文件夹的根目录
-
-
     // 错误标识码
     private final String NOFILEERROR = "1";// 远程无文件
     private final String NOREGISTEDEVICE = "2";// 设备没有注册
@@ -208,7 +206,6 @@ public class MainActivity extends Activity {
                 }, 100);
             }
         });
-
         requestHandler = new RequestHandler();
         requestHandler.sendEmptyMessage(SENDFLAG);
     }
@@ -219,7 +216,6 @@ public class MainActivity extends Activity {
             return;
         }
         if (core == null || core.countPages() == 0 || core.countPages() == -1) {
-            Log.e(TAG, "Document Not Opening");
             return;
         }
         if (core != null) {
@@ -237,7 +233,6 @@ public class MainActivity extends Activity {
             mDocView.setAdapter(new MuPDFPageAdapter(MainActivity.this, core));
             totalPage = core.countPages();
             tv_countpage.setText(currentPage + "/" + totalPage + "页");
-            Log.e(TAG, "totalpagecount = " + core.countPages() + " - ");
             ll_pdf.addView(mDocView);
         }
     }
@@ -254,12 +249,7 @@ public class MainActivity extends Activity {
         return core;
     }
 
-    /**
-     * Retrofit 异步请求
-     */
     private void asyncRequest() {
-        // 异步请求处理
-        Log.e(TAG, "MainActivity_async_Request");
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Host.HOST)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -275,38 +265,28 @@ public class MainActivity extends Activity {
                     CustName = response.body().d.Data.CustName;
                     FTPPath = response.body().d.Data.FTPPath;
                     String tempMachineDocPath = response.body().d.Data.MachineDocPath;
-
                     if (!MachineDocPath.equals(tempMachineDocPath)) {
                         MachineDocPath = tempMachineDocPath;
-
                         defaultFile.setLink(MachineDocPath);
                         defaultFile.setName("首页.pdf");
-
                         indeterminate_progress_large_library.setVisibility(View.INVISIBLE);
                         recyclerViewMain.setVisibility(View.VISIBLE);
                         adapter.setDefaultFTPFile(defaultFile);
                         adapter.setFiles(files);
-
                         DownloadFile(MachineDocPath);
                     }
-
                     String tempLBPicPath = response.body().d.Data.LBPicPath;
-
                     if (!LBPicPath.equals(tempLBPicPath)) {
                         LBPicPath = tempLBPicPath;
-                        // download pic
-                        DownloadFile(LBPicPath);
+                        DownloadFile(LBPicPath);// download pic
                     }
-
                     MachineName = response.body().d.Data.MachineName;
                     PO = response.body().d.Data.PO;
                     String CustLogo = response.body().d.Data.CustLogo;
-
                     tv_custname.setText(CustName);
                     tv_machinename.setText(MachineName);
                     tv_product.setText(tempPN);
                     tv_order.setText(PO);
-
                     if (TextUtils.isEmpty(CustLogo)) {
                         iv_show_fresco.setVisibility(View.GONE);
                     } else {
@@ -314,9 +294,7 @@ public class MainActivity extends Activity {
                         Uri uri = Uri.parse(Host.HOST + "res/customer/" + CustLogo);
                         iv_show_fresco.setImageURI(uri);
                     }
-
                     handleMarqueeText(response.body().d.Data.Msg);
-
                     // 判断pn是否发生变化，有变化需要更新远程files
                     if (TextUtils.isEmpty(tempPN)) {
                         tv_progress_desc.setText("设备空闲，无展示信息。");
@@ -369,9 +347,7 @@ public class MainActivity extends Activity {
 
     }
 
-    // Download file method
     private void DownloadFile(String pdfFilePath) {
-        Log.e(TAG, "download--" + pdfFilePath);
         AssyncFtpTaskActions assyncFtpTaskActions = new AssyncFtpTaskActions();
         assyncFtpTaskActions.execute("DOWNLOAD", pdfFilePath);
     }
@@ -401,18 +377,12 @@ public class MainActivity extends Activity {
         public String pdfPath;
     }
 
-
-    /**
-     * Assync task  for operations with files
-     */
     public class AssyncFtpTaskActions extends AsyncTask<String, Void, TaskDate> {
-
         @Override
         protected TaskDate doInBackground(String... params) {
             FTPClient mFTPClient = new FTPClient();
             TaskDate taskDate = new TaskDate();
             try {
-                // Establish connection
                 mFTPClient.setControlEncoding("UTF-8");
                 mFTPClient.connect(Host.FTPHOST, Host.FTPHOSTIPTABLES);
                 mFTPClient.login(FTP_USER, FTP_PASS);
@@ -421,10 +391,7 @@ public class MainActivity extends Activity {
                 mFTPClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 mFTPClient.setFileTransferMode(FTPClient.STREAM_TRANSFER_MODE);
                 mFTPClient.enterLocalPassiveMode(); //开启本地被动模式
-
-                // Action with files
                 switch (params[0]) {
-
                     case "CHECKFILELIST": {
                         String FTPPath = params[1];
                         if (mFTPClient.changeWorkingDirectory(FTPPath)) {
@@ -438,7 +405,6 @@ public class MainActivity extends Activity {
                         }
                         break;
                     }
-
                     case "DOWNLOAD": {
                         String pdfFilePath = params[1];
                         String filePath = pdfFilePath.substring(0, pdfFilePath.lastIndexOf("/"));
@@ -454,7 +420,6 @@ public class MainActivity extends Activity {
                         }
                         pdfFile.createNewFile();
 
-
                         FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory() + pdfFilePath, true);
                         InputStream inputStream = mFTPClient.retrieveFileStream(pdfFilePath);
                         long currentSize = 0;
@@ -465,7 +430,6 @@ public class MainActivity extends Activity {
                             currentSize = currentSize + length;
                         }
                         inputStream.close();
-
                         fos.flush();
                         fos.close();
                         if (mFTPClient.completePendingCommand()) {
@@ -485,20 +449,12 @@ public class MainActivity extends Activity {
             return taskDate;
         }
 
-        /**
-         * show progress bar
-         */
-
         @Override
         protected void onPreExecute() {
             progress.setVisibility(View.VISIBLE);
             tv_progress_desc.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
         }
-
-        /**
-         * Show changed files or fail message
-         */
 
         @Override
         protected void onPostExecute(TaskDate taskDate) {
@@ -513,10 +469,8 @@ public class MainActivity extends Activity {
                 case FILECHECKOK: {
                     // 远程文件有数据do nothing
                     tv_progress_desc.setText("获取远程列表成功，开始进行下载文件...");
-
                     indeterminate_progress_large_library.setVisibility(View.INVISIBLE);
                     recyclerViewMain.setVisibility(View.VISIBLE);
-
                     for (int i = 0; files != null && i < files.length; i++) {
                         files[i].setLink(FTPPath + files[i].getName());
                         DownloadFile(FTPPath + files[i].getName());
@@ -531,7 +485,6 @@ public class MainActivity extends Activity {
                     if (defaultFile.getLink().equals(taskDate.pdfPath)) {
                         openPdf(defaultFile.getLink());
                     }
-
                     if (LBPicPath.equals(taskDate.pdfPath)) {
                         // 显示图片
                         try {
@@ -643,7 +596,5 @@ public class MainActivity extends Activity {
         } else {
             this.finish();
         }
-
-
     }
 }
