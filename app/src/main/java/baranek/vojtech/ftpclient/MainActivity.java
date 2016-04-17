@@ -69,11 +69,7 @@ public class MainActivity extends Activity {
     private final String FILEDOWNOK = "5";// FILEDOWNOK
     private final String FILEDOWNERROR = "6";// FILEDOWNOKEOOR
     private final String PDFNERROR = "7";// PDF error
-
-
-    // 发送请求的标志码
-    private static final int SENDFLAG = 0x10;
-
+    private static final int SENDFLAG = 0x10;// 发送请求的标志码
     private String currentErrorFlag = "";// 当前的错误类型
 
     @Bind(R.id.progress)
@@ -198,7 +194,7 @@ public class MainActivity extends Activity {
                             }
                             case NONETWORK: {
                                 iv_logo.setVisibility(View.VISIBLE);
-                                tv_progress_desc.setText("网络出现异常，请检查网络链接...");
+                                tv_progress_desc.setText("网络出现异常,请检查网络链接...");
                             }
                         }
                         openPdf(pdfPath);
@@ -255,7 +251,7 @@ public class MainActivity extends Activity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         EwiLoginService service = retrofit.create(EwiLoginService.class);
-        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", "test");
+        Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", deviceId);
         allMachineResBodyCall.enqueue(new Callback<EwiResBody>() {
             @Override
             public void onResponse(Call<EwiResBody> call, Response<EwiResBody> response) {
@@ -273,12 +269,12 @@ public class MainActivity extends Activity {
                         recyclerViewMain.setVisibility(View.VISIBLE);
                         adapter.setDefaultFTPFile(defaultFile);
                         adapter.setFiles(files);
-                        DownloadFile(MachineDocPath);
+                        DownloadFile(MachineDocPath);// download default pdf file
                     }
                     String tempLBPicPath = response.body().d.Data.LBPicPath;
                     if (!LBPicPath.equals(tempLBPicPath)) {
                         LBPicPath = tempLBPicPath;
-                        DownloadFile(LBPicPath);// download pic
+                        DownloadFile(LBPicPath);// download pic file
                     }
                     MachineName = response.body().d.Data.MachineName;
                     PO = response.body().d.Data.PO;
@@ -462,7 +458,7 @@ public class MainActivity extends Activity {
                 case NOFILEERROR: {
                     // 远程文件不存在的情况下，10s后进行重新请求pn号
                     iv_logo.setVisibility(View.VISIBLE);
-                    tv_progress_desc.setText("远程文件资料不存在（/" + MachineCode + "/" + PN + ")");
+                    tv_progress_desc.setText("远程文件资料不存在（" + FTPPath + ")");
                     requestHandler.sendEmptyMessageDelayed(SENDFLAG, Host.TENLOOPER * 1000);
                     break;
                 }
@@ -481,7 +477,7 @@ public class MainActivity extends Activity {
                 }
                 case FILEDOWNOK: {
                     // 文件下载完成并且打开
-                    tv_progress_desc.setText("文件：" + taskDate.pdfPath + "，下载完成.");
+                    tv_progress_desc.setText("文件：" + taskDate.pdfPath + ",下载完成.");
                     if (defaultFile.getLink().equals(taskDate.pdfPath)) {
                         openPdf(defaultFile.getLink());
                     }
@@ -514,7 +510,7 @@ public class MainActivity extends Activity {
                             file.delete();
                         }
                     }
-                    tv_progress_desc.setText("远程文件" + taskDate.pdfPath + "下载失败，请重新尝试...");
+                    tv_progress_desc.setText("远程文件(" + taskDate.pdfPath + ")下载失败，请重新尝试...");
                     break;
                 }
                 case NONETWORK: {
@@ -529,7 +525,7 @@ public class MainActivity extends Activity {
                             file.delete();
                         }
                     }
-                    tv_progress_desc.setText("文件下载出现异常，请重新下载...");
+                    tv_progress_desc.setText("文件下载出现异常.");
                     break;
                 }
             }
