@@ -1,32 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="?attr/cardStyle"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
-    android:layout_margin="1dp">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/botton_margin_top"
+        android:background="@drawable/bg_tab"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingBottom="@dimen/filelist_padding_top"
+        android:paddingTop="@dimen/filelist_padding_top"
+        android:text="文档一"
+        android:textColor="@color/title_dark"
+        android:textSize="@dimen/botton_title_size"
+        android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:scaleType="centerCrop" />
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/type"
-            android:maxLines="1"
-            android:padding="8dp"
-            android:textColor="#222"
-            android:textSize="15dp" />
-
-    </RelativeLayout>
-</android.support.v7.widget.CardView>
+</RelativeLayout>

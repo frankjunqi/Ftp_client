@@ -30,7 +30,6 @@ public class SettingActivity extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-
         activity_setting = (Button) findViewById(R.id.btn_setting);
         activity_setting.setOnClickListener(this);
 
@@ -120,7 +119,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             } catch (Exception e) {
             }
             Host.FTPHOSTIPTABLES = ftphostIp;
-            savaSP(Host.KWYFTPHOSTIPTABLES,ftphostiptables);
+            savaSP(Host.KWYFTPHOSTIPTABLES, ftphostiptables);
         }
 
         int time = 10;

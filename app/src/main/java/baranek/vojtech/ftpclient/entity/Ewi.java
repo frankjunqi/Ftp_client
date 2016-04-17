@@ -15,5 +15,10 @@ public class Ewi implements Serializable {
     public String CustLogo;
     public String CustName;
     public String MachineName;
+    public String FTPPath;
+    public String LBPicPath;
+    public String MachineDocPath;
+
+
     public ArrayList<String> Msg = new ArrayList<>();
 }

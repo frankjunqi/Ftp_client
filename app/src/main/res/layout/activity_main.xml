@@ -23,7 +23,7 @@
         android:weightSum="6"
         tools:context=".MainActivity">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -32,6 +32,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/ll_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/padding_bottom"
@@ -57,13 +58,17 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/iv_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/ll_one"
                 android:background="@drawable/split_left" />
 
             <LinearLayout
+                android:id="@+id/ll_two"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/iv_one"
                 android:layout_marginBottom="@dimen/padding_bottom"
                 android:layout_marginLeft="@dimen/padding_left"
                 android:layout_marginTop="@dimen/padding_top"
@@ -88,7 +93,7 @@
                         android:layout_height="30dp"
                         android:layout_gravity="left"
                         fresco:failureImage="@color/bg_content_middle"
-                        fresco:placeholderImage="@color/bg_content_middle"/>
+                        fresco:placeholderImage="@color/bg_content_middle" />
 
                     <TextView
                         android:id="@+id/tv_custname"
@@ -102,13 +107,17 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/iv_two"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/ll_two"
                 android:background="@drawable/split_left" />
 
             <LinearLayout
+                android:id="@+id/ll_three"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/iv_two"
                 android:layout_marginBottom="@dimen/padding_bottom"
                 android:layout_marginLeft="@dimen/padding_left"
                 android:layout_marginTop="@dimen/padding_top"
@@ -132,13 +141,17 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/iv_three"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/ll_three"
                 android:background="@drawable/split_left" />
 
             <LinearLayout
+                android:id="@+id/ll_four"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/iv_three"
                 android:layout_marginBottom="@dimen/padding_bottom"
                 android:layout_marginLeft="@dimen/padding_left"
                 android:layout_marginTop="@dimen/padding_top"
@@ -162,18 +175,20 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/iv_four"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/ll_four"
                 android:background="@drawable/split_left" />
 
-            <TextView
-                android:id="@+id/tv_deviceid"
+            <ImageView
+                android:id="@+id/iv_lbpicpath"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="deviceid："
-                android:textStyle="bold"
-                android:visibility="gone" />
-        </LinearLayout>
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                android:visibility="visible" />
+        </RelativeLayout>
 
 
         <RelativeLayout
@@ -205,8 +220,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -216,94 +229,71 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/logo" />
 
-                <TextView
-                    android:id="@+id/tv_progress_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:text="正在加载中，请等待...."
-                    android:textColor="@color/main_white"
-                    android:textSize="@dimen/page_loder_size" />
-
-                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                    android:id="@+id/progress"
-                    style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    android:visibility="invisible"
-                    app:mpb_progressStyle="horizontal" />
             </LinearLayout>
 
 
         </RelativeLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/bg_content_right"
-            android:orientation="vertical">
+            android:background="@color/bg_content_right">
 
-            <Button
-                android:id="@+id/btn_right_1"
+
+            <TextView
+                android:id="@+id/tv_progress_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/botton_middle_margin_left"
-                android:layout_marginRight="@dimen/botton_middle_margin_right"
-                android:layout_marginTop="@dimen/botton_margin_top"
-                android:background="@drawable/bg_tab"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:text="文档一"
+                android:text="正在加载中，请等待...."
                 android:textColor="@color/title_dark"
-                android:textSize="@dimen/botton_title_size"
-                android:textStyle="bold" />
+                android:textSize="@dimen/page_loder_size" />
 
-            <Button
-                android:id="@+id/btn_right_2"
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                android:id="@+id/progress"
+                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/botton_middle_margin_left"
-                android:layout_marginRight="@dimen/botton_middle_margin_right"
-                android:layout_marginTop="@dimen/botton_middle_margin_top"
-                android:background="@drawable/bg_tab"
-                android:gravity="center"
-                android:text="文档二"
-                android:textColor="@color/title_dark"
-                android:textSize="@dimen/botton_title_size"
-                android:textStyle="bold" />
+                android:layout_above="@id/tv_progress_desc"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:indeterminate="true"
+                android:visibility="visible"
+                app:mpb_progressStyle="horizontal" />
 
-            <Button
-                android:id="@+id/btn_right_3"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_above="@id/progress"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="14dp"
                 android:layout_marginLeft="@dimen/botton_middle_margin_left"
                 android:layout_marginRight="@dimen/botton_middle_margin_right"
-                android:layout_marginTop="@dimen/botton_middle_margin_top"
-                android:background="@drawable/bg_tab"
-                android:gravity="center"
-                android:text="文档三"
-                android:textColor="@color/title_dark"
-                android:textSize="@dimen/botton_title_size"
-                android:textStyle="bold" />
+                android:visibility="invisible">
 
-            <Button
-                android:id="@+id/btn_right_4"
-                android:layout_width="match_parent"
+            </android.support.v7.widget.RecyclerView>
+
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                android:id="@+id/indeterminate_progress_large_library"
+                style="@style/Widget.MaterialProgressBar.ProgressBar"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/botton_middle_margin_left"
-                android:layout_marginRight="@dimen/botton_middle_margin_right"
-                android:layout_marginTop="@dimen/botton_middle_margin_top"
-                android:background="@drawable/bg_tab"
-                android:gravity="center"
-                android:text="文档四"
-                android:textColor="@color/title_dark"
-                android:textSize="@dimen/botton_title_size"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:layout_above="@id/progress"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginBottom="14dp"
+                android:indeterminate="true"
+                android:visibility="visible" />
+
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout

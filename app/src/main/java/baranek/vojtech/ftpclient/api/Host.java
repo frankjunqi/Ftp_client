@@ -18,4 +18,6 @@ public class Host {
     // 时隔10秒请求一次
     public static int TENLOOPER = 10;
 
+    public static int BOTTOMHEIGHT = 0;
+
 }
