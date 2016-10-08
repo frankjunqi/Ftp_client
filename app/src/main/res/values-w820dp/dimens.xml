@@ -8,15 +8,15 @@
 
     <!-- PADDINGS -->
     <dimen name="padding_none">0dp</dimen>
-    <dimen name="padding_small">2dp</dimen>
-    <dimen name="padding_medium">4dp</dimen>
-    <dimen name="padding_extra_large">48dp</dimen>
+    <dimen name="padding_small">2dip</dimen>
+    <dimen name="padding_medium">4dip</dimen>
+    <dimen name="padding_extra_large">48dip</dimen>
 
-    <dimen name="cicle_width">30dp</dimen>
+    <dimen name="cicle_width">30dip</dimen>
 
 
-    <dimen name="logo_width">30dp</dimen>
-    <dimen name="logo_margin_width">34dp</dimen>
+    <dimen name="logo_width">30dip</dimen>
+    <dimen name="logo_margin_width">34dip</dimen>
 
     <!--table title text size-->
     <dimen name="title_text_size">22sp</dimen>
@@ -28,16 +28,16 @@
     <dimen name="page_title_size">14sp</dimen>
     <dimen name="page_loder_size">20sp</dimen>
 
-    <dimen name="padding_top">14dp</dimen>
-    <dimen name="padding_bottom">14dp</dimen>
+    <dimen name="padding_top">14dip</dimen>
+    <dimen name="padding_bottom">14dip</dimen>
 
-    <dimen name="filelist_padding_top">20dp</dimen>
+    <dimen name="filelist_padding_top">20dip</dimen>
 
 
-    <dimen name="botton_margin_top">24dp</dimen>
-    <dimen name="botton_middle_margin_top">18dp</dimen>
-    <dimen name="botton_middle_margin_left">4dp</dimen>
-    <dimen name="botton_middle_margin_right">4dp</dimen>
+    <dimen name="botton_margin_top">24dip</dimen>
+    <dimen name="botton_middle_margin_top">18dip</dimen>
+    <dimen name="botton_middle_margin_left">4dip</dimen>
+    <dimen name="botton_middle_margin_right">4dip</dimen>
 
 
     <dimen name="big_text_size">22sp</dimen>
@@ -53,11 +53,11 @@
 
 
     <!--看板的间隔距离-->
-    <dimen name="padding_left">18dp</dimen>
-    <dimen name="text_padding_left">8dp</dimen>
-    <dimen name="padding_right">10dp</dimen>
+    <dimen name="padding_left">18dip</dimen>
+    <dimen name="text_padding_left">8dip</dimen>
+    <dimen name="padding_right">10dip</dimen>
 
-    <dimen name="notice_icon_margin_left">10dp</dimen>
+    <dimen name="notice_icon_margin_left">10dip</dimen>
 
 
 </resources>

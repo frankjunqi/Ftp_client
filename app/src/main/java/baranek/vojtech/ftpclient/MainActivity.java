@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -161,6 +162,11 @@ public class MainActivity extends Activity {
         int heightpix = wm.getDefaultDisplay().getHeight();
         int widthpix = wm.getDefaultDisplay().getWidth();
         picWidth = widthpix / 6;
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        Log.e(TAG, "densith = " + dm.density + "; densityDpi = " + dm.densityDpi);
+
 
         // init height
         titleLineView = new TitleLineView(MainActivity.this);
