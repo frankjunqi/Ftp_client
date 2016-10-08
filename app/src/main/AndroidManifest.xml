@@ -13,8 +13,9 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_ftp_launcher"
         android:label="@string/app_ewi_name">
+
         <activity
-            android:name=".SettingActivity"
+            android:name=".SecretActivity"
             android:label="@string/app_ewi_name"
             android:theme="@style/ActivityTheme.Full">
             <intent-filter>
@@ -23,6 +24,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SettingActivity"
+            android:label="@string/app_ewi_name"
+            android:theme="@style/ActivityTheme.Full" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_ewi_name"
