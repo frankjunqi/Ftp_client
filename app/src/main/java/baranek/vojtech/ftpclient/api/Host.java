@@ -20,4 +20,6 @@ public class Host {
 
     public static int BOTTOMHEIGHT = 0;
 
+    public static  int TEMPLOOPER = 6;
+
 }

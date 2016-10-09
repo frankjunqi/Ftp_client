@@ -1,17 +1,23 @@
 package baranek.vojtech.ftpclient.view;
 
 import android.content.Context;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+
 import java.util.Calendar;
 
 import baranek.vojtech.ftpclient.R;
+import baranek.vojtech.ftpclient.api.Host;
 
 /**
  * Created by Frank on 16/4/4.
@@ -27,6 +33,7 @@ public class TitleLineView extends LinearLayout {
     private TextView tv_weather;
     private TextView tv_temperature;
     private MarqueeTextView tv_info;
+    private SimpleDraweeView iv_weather_icon;
 
 
     private class TimeHandler extends Handler {
@@ -50,6 +57,7 @@ public class TitleLineView extends LinearLayout {
     private void initView(Context mContext) {
         inflate(mContext, R.layout.rawmaterial_title, this);
         textClock = (TextClock) findViewById(R.id.textClock);
+        iv_weather_icon = (SimpleDraweeView) findViewById(R.id.iv_weather_icon);
         digitalClock = (TextView) findViewById(R.id.digitalClock);
         tv_weather = (TextView) findViewById(R.id.tv_weather);
         tv_title = (TextView) findViewById(R.id.tv_title);
@@ -104,5 +112,23 @@ public class TitleLineView extends LinearLayout {
             noticeContent = tv_info.getText().toString();
         }
         return noticeContent;
+    }
+
+    /**
+     * 设置温度
+     *
+     * @param temperature 温度
+     */
+    public void setTv_temperature(String temperature) {
+        tv_temperature.setText(temperature);
+    }
+
+    /**
+     * 设置图片
+     * @param imageFlag
+     */
+    public void setIv_weather_icon(String imageFlag) {
+        Uri uri = Uri.parse(Host.HOST + "/res/weather/" + imageFlag + ".png");
+        iv_weather_icon.setImageURI(uri);
     }
 }

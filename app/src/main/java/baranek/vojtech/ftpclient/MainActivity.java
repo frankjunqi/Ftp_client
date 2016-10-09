@@ -43,9 +43,10 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.UUID;
 
-import baranek.vojtech.ftpclient.api.EwiLoginService;
+import baranek.vojtech.ftpclient.api.EwiService;
 import baranek.vojtech.ftpclient.api.Host;
 import baranek.vojtech.ftpclient.entity.EwiResBody;
+import baranek.vojtech.ftpclient.entity.TempResBody;
 import baranek.vojtech.ftpclient.gsonfactory.GsonConverterFactory;
 import baranek.vojtech.ftpclient.view.TitleLineView;
 import butterknife.Bind;
@@ -70,7 +71,10 @@ public class MainActivity extends Activity {
     private final String FILEDOWNOK = "5";// FILEDOWNOK
     private final String FILEDOWNERROR = "6";// FILEDOWNOKEOOR
     private final String PDFNERROR = "7";// PDF error
+
     private static final int SENDFLAG = 0x10;// 发送请求的标志码
+    private static final int TEMPERATURE = 0x11;// 发送温度的请求标志码
+
     private String currentErrorFlag = "";// 当前的错误类型
 
     @Bind(R.id.progress)
@@ -141,10 +145,41 @@ public class MainActivity extends Activity {
                 case SENDFLAG:
                     asyncRequest();
                     break;
+                case TEMPERATURE:
+                    requestTemperature();
+                    break;
             }
         }
     }
 
+    /**
+     * 请求温度接口
+     */
+    private void requestTemperature(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Host.HOST)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        EwiService service = retrofit.create(EwiService.class);
+        Call<TempResBody> tempResBodyCall = service.tempRequest("Srv", "BaseInfo.svc", "QueryWeather");
+        tempResBodyCall.enqueue(new Callback<TempResBody>() {
+            @Override
+            public void onResponse(Call<TempResBody> call, Response<TempResBody> response) {
+                if (response != null && response.body() != null && response.body().d != null && response.body().d.Data != null) {
+                    if(titleLineView != null && !TextUtils.isEmpty(response.body().d.Data.TodayTemp)){
+                        titleLineView.setTv_temperature(response.body().d.Data.TodayTemp);
+                        titleLineView.setIv_weather_icon(response.body().d.Data.Icon);
+                    }
+                }
+                requestHandler.sendEmptyMessageDelayed(TEMPERATURE, Host.TEMPLOOPER * 1000);
+            }
+
+            @Override
+            public void onFailure(Call<TempResBody> call, Throwable throwable) {
+                requestHandler.sendEmptyMessageDelayed(TEMPERATURE, Host.TEMPLOOPER * 1000);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,6 +245,7 @@ public class MainActivity extends Activity {
         });
         requestHandler = new RequestHandler();
         requestHandler.sendEmptyMessage(SENDFLAG);
+        requestHandler.sendEmptyMessage(TEMPERATURE);
     }
 
     private void initPDF(String mFilePath) {
@@ -256,7 +292,7 @@ public class MainActivity extends Activity {
                 .baseUrl(Host.HOST)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        EwiLoginService service = retrofit.create(EwiLoginService.class);
+        EwiService service = retrofit.create(EwiService.class);
         Call<EwiResBody> allMachineResBodyCall = service.allMachineList("Srv", "EWI.svc", "EWILogin", deviceId);
         allMachineResBodyCall.enqueue(new Callback<EwiResBody>() {
             @Override
