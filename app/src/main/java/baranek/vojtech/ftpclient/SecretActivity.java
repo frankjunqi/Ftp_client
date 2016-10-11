@@ -36,7 +36,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = "TAG";
 
-    private EditText et_secret;
+    private EditText et_secret,et_update_host;
 
     private Button btn_sure, btn_update;
 
@@ -50,6 +50,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_secret);
         mContext = this;
         et_secret = (EditText) findViewById(R.id.et_secret);
+        et_update_host = (EditText) findViewById(R.id.et_update_host);
         btn_sure = (Button) findViewById(R.id.btn_sure);
         btn_sure.setOnClickListener(this);
         btn_update = (Button) findViewById(R.id.btn_update);
@@ -64,17 +65,25 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                 if ("mesmubea".equals(secret)) {
                     Toast.makeText(this, "登陆成功！", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(this, SettingActivity.class));
+                    this.finish();
                 } else {
                     Toast.makeText(this, "密码错误，请联系管理员！", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_update:
+                String updateHost = et_update_host.getText().toString().replace(" ","");
+                if (TextUtils.isEmpty(updateHost)){
+                    updateHost = Host.UpdateHost;
+                }
+                Host.UpdateHost = updateHost;
+
                 requestUpdate();
                 break;
         }
     }
 
     public void requestUpdate() {
+        btn_update.setEnabled(false);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Host.UpdateHost)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -89,18 +98,21 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                     if (update != null && !TextUtils.isEmpty(update.FileUrl) && !TextUtils.isEmpty(update.Ver) && Integer.parseInt(update.Ver) > getVersionCode(mContext)) {
                         // 下载
                         Toast.makeText(SecretActivity.this, "Downloding EWI.apk ... ", Toast.LENGTH_SHORT).show();
-                        downloadApk(response.body().d.Data.FileUrl);
-                    }else{
+                        downloadApk(Host.UpdateHost + response.body().d.Data.FileUrl);
+                    } else {
                         Toast.makeText(SecretActivity.this, "已经是最新版本！", Toast.LENGTH_SHORT).show();
+                        btn_update.setEnabled(true);
                     }
                 } else {
                     Toast.makeText(SecretActivity.this, "无版本更新！", Toast.LENGTH_SHORT).show();
+                    btn_update.setEnabled(true);
                 }
             }
 
             @Override
             public void onFailure(Call<UpdaeResBody> call, Throwable throwable) {
                 Toast.makeText(SecretActivity.this, "更新接口异常，请联系维护人员 ！", Toast.LENGTH_SHORT).show();
+                btn_update.setEnabled(true);
             }
         });
     }

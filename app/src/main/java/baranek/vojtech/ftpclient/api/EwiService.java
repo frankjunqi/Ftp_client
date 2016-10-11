@@ -39,7 +39,4 @@ public interface EwiService {
             @Query("Ver") String ver
     );
 
-    @Streaming
-    @GET
-    Call<ResponseBody> downloadFileWithDynamicUrlSync(@Url String fileUrl);
 }
