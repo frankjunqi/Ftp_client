@@ -1,7 +1,13 @@
 package baranek.vojtech.ftpclient;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -47,6 +53,8 @@ import baranek.vojtech.ftpclient.api.EwiService;
 import baranek.vojtech.ftpclient.api.Host;
 import baranek.vojtech.ftpclient.entity.EwiResBody;
 import baranek.vojtech.ftpclient.entity.TempResBody;
+import baranek.vojtech.ftpclient.entity.UpdaeResBody;
+import baranek.vojtech.ftpclient.entity.Update;
 import baranek.vojtech.ftpclient.gsonfactory.GsonConverterFactory;
 import baranek.vojtech.ftpclient.view.TitleLineView;
 import butterknife.Bind;
@@ -74,6 +82,7 @@ public class MainActivity extends Activity {
 
     private static final int SENDFLAG = 0x10;// 发送请求的标志码
     private static final int TEMPERATURE = 0x11;// 发送温度的请求标志码
+    private static final int UPDATEFLAG = 0x12;// 更新的请求标志
 
     private String currentErrorFlag = "";// 当前的错误类型
 
@@ -137,6 +146,10 @@ public class MainActivity extends Activity {
     // 定时器操作
     private static RequestHandler requestHandler = null;
 
+    private ContentObserver contentObserver;
+    private boolean isDownloading = false;
+
+
     private class RequestHandler extends Handler {
 
         @Override
@@ -148,6 +161,9 @@ public class MainActivity extends Activity {
                 case TEMPERATURE:
                     requestTemperature();
                     break;
+                case UPDATEFLAG:
+                    requestUpdate();
+                    break;
             }
         }
     }
@@ -155,7 +171,7 @@ public class MainActivity extends Activity {
     /**
      * 请求温度接口
      */
-    private void requestTemperature(){
+    private void requestTemperature() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Host.HOST)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -166,9 +182,10 @@ public class MainActivity extends Activity {
             @Override
             public void onResponse(Call<TempResBody> call, Response<TempResBody> response) {
                 if (response != null && response.body() != null && response.body().d != null && response.body().d.Data != null) {
-                    if(titleLineView != null && !TextUtils.isEmpty(response.body().d.Data.TodayTemp)){
+                    if (titleLineView != null && !TextUtils.isEmpty(response.body().d.Data.TodayTemp)) {
                         titleLineView.setTv_temperature(response.body().d.Data.TodayTemp);
                         titleLineView.setIv_weather_icon(response.body().d.Data.Icon);
+                        titleLineView.setTv_weather(response.body().d.Data.WeatherInfo);
                     }
                 }
                 requestHandler.sendEmptyMessageDelayed(TEMPERATURE, Host.TEMPLOOPER * 1000);
@@ -206,6 +223,12 @@ public class MainActivity extends Activity {
         // init height
         titleLineView = new TitleLineView(MainActivity.this);
         titleLineView.setTitle("E-WI");
+        titleLineView.setImageLogoClickListen(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SecretActivity.class));
+            }
+        });
 
         ll_title.addView(titleLineView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (heightpix - 18) / 9));
         ll_bottom.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 18));
@@ -246,6 +269,7 @@ public class MainActivity extends Activity {
         requestHandler = new RequestHandler();
         requestHandler.sendEmptyMessage(SENDFLAG);
         requestHandler.sendEmptyMessage(TEMPERATURE);
+        requestHandler.sendEmptyMessage(UPDATEFLAG);
     }
 
     private void initPDF(String mFilePath) {
@@ -621,6 +645,9 @@ public class MainActivity extends Activity {
             requestHandler.removeMessages(SENDFLAG);
         }
         super.onDestroy();
+        if (contentObserver != null) {
+            getContentResolver().unregisterContentObserver(contentObserver);
+        }
     }
 
     // 系统退出的纪录时间
@@ -635,4 +662,128 @@ public class MainActivity extends Activity {
             this.finish();
         }
     }
+
+
+    public void requestUpdate() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Host.UpdateHost)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        EwiService service = retrofit.create(EwiService.class);
+        Call<UpdaeResBody> updaeResBodyCall = service.updateVersion("Srv", "Base.svc", "CheckUpdate", "MubeaEWI", String.valueOf(getVersionCode(MainActivity.this)));
+        updaeResBodyCall.enqueue(new Callback<UpdaeResBody>() {
+            @Override
+            public void onResponse(Call<UpdaeResBody> call, Response<UpdaeResBody> response) {
+                if (response != null && response.body() != null && response.body().d != null && response.body().d.Data != null) {
+                    Update update = response.body().d.Data;
+                    if (update != null && !TextUtils.isEmpty(update.FileUrl) && !TextUtils.isEmpty(update.Ver) && Integer.parseInt(update.Ver) > getVersionCode(MainActivity.this)) {
+                        // 下载
+                        Toast.makeText(MainActivity.this, "Downloding EWI.apk ... ", Toast.LENGTH_SHORT).show();
+                        if (isDownloading) {
+                            return;
+                        }
+                        downloadApk(Host.UpdateHost + response.body().d.Data.FileUrl);
+                    }
+                }
+                requestHandler.sendEmptyMessageDelayed(UPDATEFLAG, Host.UPDATELOOPER * 1000);
+
+            }
+
+            @Override
+            public void onFailure(Call<UpdaeResBody> call, Throwable throwable) {
+                Toast.makeText(MainActivity.this, "更新接口异常，请联系维护人员 ！", Toast.LENGTH_SHORT).show();
+                requestHandler.sendEmptyMessageDelayed(UPDATEFLAG, Host.UPDATELOOPER * 1000);
+            }
+        });
+    }
+
+    private void downloadApk(String apkUrl) {
+        isDownloading = true;
+        // 下载
+        try {
+            final DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            clearDownLoadApk(downloadManager);
+            Uri uri = Uri.parse(apkUrl);
+            DownloadManager.Request request = new DownloadManager.Request(uri);
+            request.setTitle("EWI");
+            // 指定文件保存在应用的私有目录
+            request.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, TCTInsatllActionBroadcastReceiver.APK_FILE_NAME);
+            long reference = 0;
+            try {
+                reference = downloadManager.enqueue(request);// 下载id
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            final long id = reference;
+            // 注册数据库监听
+            getContentResolver().registerContentObserver(
+                    Uri.parse("content://downloads/my_downloads"),
+                    true,
+                    contentObserver = new ContentObserver(null) {
+                        @Override
+                        public void onChange(boolean selfChange) {
+                            DownloadManager.Query query = new DownloadManager.Query();
+                            query.setFilterById(id);
+                            Cursor my = downloadManager.query(query);
+                            if (my != null) {
+                                if (my.moveToFirst()) {
+                                    int fileSize = my.getInt(my
+                                            .getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                                    int bytesDL = my.getInt(my
+                                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                    int percent = bytesDL * 100 / fileSize;
+
+                                    if (percent == 100) {
+                                        isDownloading = false;
+                                    }
+                                }
+                                my.close();
+                            } else {
+                                isDownloading = false;
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            isDownloading = false;
+        }
+    }
+
+    /**
+     * 删除之前下载的apk文件
+     */
+    private void clearDownLoadApk(final DownloadManager manager) {
+        // 删除失败和成功状态的数据
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int delete[] = {DownloadManager.STATUS_FAILED, DownloadManager.STATUS_SUCCESSFUL};
+                DownloadManager.Query query = new DownloadManager.Query();
+                for (int element : delete) {
+                    query.setFilterByStatus(element);
+                    Cursor cursor = manager.query(query);
+                    if (cursor != null) {
+                        if (cursor.moveToFirst()) {
+                            do {
+                                manager.remove(cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID)));
+                            } while (cursor.moveToNext());
+                        }
+                        cursor.close();
+                    }
+                }
+            }
+        }).start();
+    }
+
+
+    public int getVersionCode(Context context)//获取版本号(内部识别号)
+    {
+        try {
+            PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return pi.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 }

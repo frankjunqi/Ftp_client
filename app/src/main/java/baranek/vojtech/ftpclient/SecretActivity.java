@@ -36,7 +36,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = "TAG";
 
-    private EditText et_secret,et_update_host;
+    private EditText et_secret;
 
     private Button btn_sure, btn_update;
 
@@ -50,7 +50,6 @@ public class SecretActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_secret);
         mContext = this;
         et_secret = (EditText) findViewById(R.id.et_secret);
-        et_update_host = (EditText) findViewById(R.id.et_update_host);
         btn_sure = (Button) findViewById(R.id.btn_sure);
         btn_sure.setOnClickListener(this);
         btn_update = (Button) findViewById(R.id.btn_update);
@@ -71,12 +70,6 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                 }
                 break;
             case R.id.btn_update:
-                String updateHost = et_update_host.getText().toString().replace(" ","");
-                if (TextUtils.isEmpty(updateHost)){
-                    updateHost = Host.UpdateHost;
-                }
-                Host.UpdateHost = updateHost;
-
                 requestUpdate();
                 break;
         }

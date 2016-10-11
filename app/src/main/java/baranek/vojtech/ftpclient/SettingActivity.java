@@ -23,6 +23,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
     private EditText et_ftp_host;
     private EditText et_ftp_host_iptables;
     private EditText et_host;
+    private EditText et_update_host;
 
     private Button activity_setting;
 
@@ -33,6 +34,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         activity_setting = (Button) findViewById(R.id.btn_setting);
         activity_setting.setOnClickListener(this);
 
+        et_update_host = (EditText) findViewById(R.id.et_update_host);
 
         et_host = (EditText) findViewById(R.id.et_host);
         et_ftp_host = (EditText) findViewById(R.id.et_ftp_host);
@@ -60,6 +62,12 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             et_ftp_host_iptables.setText(ftphostiptables);
         }
 
+        String updateHost = getSP(Host.UPDATEKEYHOST);
+        if (TextUtils.isEmpty(updateHost)) {
+            et_ftp_host_iptables.setText(String.valueOf(Host.UpdateHost));
+        } else {
+            et_ftp_host_iptables.setText(updateHost);
+        }
     }
 
 
@@ -68,8 +76,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.btn_setting:
                 initSetting();
-                Intent raw_material_intent = new Intent(SettingActivity.this, MainActivity.class);
-                startActivity(raw_material_intent);
+                this.finish();
                 break;
         }
     }
@@ -135,6 +142,13 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             }
         }
         Host.TENLOOPER = time;
+
+
+        String updateHost = et_update_host.getText().toString().replace(" ","");
+        if (!TextUtils.isEmpty(updateHost)){
+            Host.UpdateHost = updateHost;
+            savaSP(Host.UPDATEKEYHOST, updateHost);
+        }
 
     }
 

@@ -17,13 +17,7 @@
         <activity
             android:name=".SecretActivity"
             android:label="@string/app_ewi_name"
-            android:theme="@style/ActivityTheme.Full">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/ActivityTheme.Full" />
 
         <activity
             android:name=".SettingActivity"
@@ -34,7 +28,13 @@
             android:name=".MainActivity"
             android:label="@string/app_ewi_name"
             android:screenOrientation="landscape"
-            android:theme="@style/ActivityTheme.Full" />
+            android:theme="@style/ActivityTheme.Full">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".SampleActivity"
@@ -54,7 +54,7 @@
                 <action android:name="baranek.vojtech.ftpclient.install" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".UpdateVersionBroadcastReceiver" >
+        <receiver android:name=".UpdateVersionBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />

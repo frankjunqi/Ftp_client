@@ -16,12 +16,21 @@
         android:textSize="16sp" />
 
     <EditText
+        android:id="@+id/et_update_host"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="http://update.seekersoft.cn/"
+        android:textSize="14sp" />
+
+    <EditText
         android:id="@+id/et_host"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="http://mes.seekersoft.cn/"
         android:textSize="14sp" />
+
     <EditText
         android:id="@+id/et_ftp_host"
         android:layout_width="match_parent"
@@ -29,6 +38,7 @@
         android:layout_marginTop="16dp"
         android:text="27.54.248.35"
         android:textSize="14sp" />
+
     <EditText
         android:id="@+id/et_ftp_host_iptables"
         android:layout_width="match_parent"

@@ -1,10 +1,12 @@
 package baranek.vojtech.ftpclient.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -17,6 +19,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import java.util.Calendar;
 
 import baranek.vojtech.ftpclient.R;
+import baranek.vojtech.ftpclient.SecretActivity;
 import baranek.vojtech.ftpclient.api.Host;
 
 /**
@@ -34,6 +37,8 @@ public class TitleLineView extends LinearLayout {
     private TextView tv_temperature;
     private MarqueeTextView tv_info;
     private SimpleDraweeView iv_weather_icon;
+
+    private ImageView iv_logo;
 
 
     private class TimeHandler extends Handler {
@@ -54,7 +59,7 @@ public class TitleLineView extends LinearLayout {
         initView(context);
     }
 
-    private void initView(Context mContext) {
+    private void initView(final Context mContext) {
         inflate(mContext, R.layout.rawmaterial_title, this);
         textClock = (TextClock) findViewById(R.id.textClock);
         iv_weather_icon = (SimpleDraweeView) findViewById(R.id.iv_weather_icon);
@@ -63,6 +68,8 @@ public class TitleLineView extends LinearLayout {
         tv_title = (TextView) findViewById(R.id.tv_title);
         tv_temperature = (TextView) findViewById(R.id.tv_temperature);
         tv_info = (MarqueeTextView) findViewById(R.id.tv_info);
+
+        iv_logo = (ImageView) findViewById(R.id.iv_logo);
 
         // 计算高度
         WindowManager wm = (WindowManager) getContext()
@@ -125,10 +132,28 @@ public class TitleLineView extends LinearLayout {
 
     /**
      * 设置图片
+     *
      * @param imageFlag
      */
     public void setIv_weather_icon(String imageFlag) {
         Uri uri = Uri.parse(Host.HOST + "/res/weather/" + imageFlag + ".png");
         iv_weather_icon.setImageURI(uri);
+    }
+
+    /**
+     * 设置配置项目页面
+     *
+     * @param onClickListener
+     */
+    public void setImageLogoClickListen(OnClickListener onClickListener) {
+        iv_logo.setOnClickListener(onClickListener);
+    }
+
+    /**
+     * 设置天气多云
+     * @param weather
+     */
+    public void setTv_weather(String weather) {
+        tv_weather.setText(weather);
     }
 }

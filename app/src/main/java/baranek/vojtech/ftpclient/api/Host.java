@@ -18,11 +18,15 @@ public class Host {
     public static final String KWYFTPHOST = "keyftphost";
     public static final String KWYFTPHOSTIPTABLES = "keyftphostiptables";
 
+    public static final String UPDATEKEYHOST = "updatehost";
+
     // 时隔10秒请求一次
     public static int TENLOOPER = 10;
 
     public static int BOTTOMHEIGHT = 0;
 
-    public static  int TEMPLOOPER = 6;
+    public static  int TEMPLOOPER = 60*60;
+
+    public static  int UPDATELOOPER = 60*60*6;
 
 }
