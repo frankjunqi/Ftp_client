@@ -88,7 +88,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                     Update update = response.body().d.Data;
                     if (!TextUtils.isEmpty(update.FileUrl)) {
                         // 下载
-                        Toast.makeText(SecretActivity.this, "Downloding...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SecretActivity.this, "Downloding EWI.apk ... ", Toast.LENGTH_SHORT).show();
                         downloadApk(response.body().d.Data.FileUrl);
                     }
                 } else {
@@ -105,6 +105,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
     private void downloadApk(String apkUrl) {
         btn_update.setEnabled(false);
+        btn_sure.setEnabled(false);
         // 下载
         try {
             final DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -144,6 +145,7 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
                                     if (percent >= 99) {
                                         btn_update.setEnabled(true);
+                                        btn_sure.setEnabled(true);
                                     }
 
                                 }
