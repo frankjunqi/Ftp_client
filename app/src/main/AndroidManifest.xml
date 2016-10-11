@@ -39,15 +39,27 @@
         <activity
             android:name=".SampleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" />
 
-        </activity>
         <activity
             android:name=".MBActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" />
 
-        </activity>
+
+        <receiver
+            android:name=".TCTInsatllActionBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="baranek.vojtech.ftpclient.install" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".UpdateVersionBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
