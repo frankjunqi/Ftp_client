@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,7 +23,6 @@ import baranek.vojtech.ftpclient.api.EwiService;
 import baranek.vojtech.ftpclient.api.Host;
 import baranek.vojtech.ftpclient.entity.UpdaeResBody;
 import baranek.vojtech.ftpclient.entity.Update;
-import baranek.vojtech.ftpclient.entity.UpdateObj;
 import baranek.vojtech.ftpclient.gsonfactory.GsonConverterFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,11 +42,13 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
     private ContentObserver contentObserver;
 
+    private Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_secret);
-
+        mContext = this;
         et_secret = (EditText) findViewById(R.id.et_secret);
         btn_sure = (Button) findViewById(R.id.btn_sure);
         btn_sure.setOnClickListener(this);
@@ -77,22 +80,21 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         EwiService service = retrofit.create(EwiService.class);
-        Call<UpdaeResBody> updaeResBodyCall = service.updateVersion("Srv", "Base.svc", "CheckUpdate", "MubeaEWI", "1.0");
+        Call<UpdaeResBody> updaeResBodyCall = service.updateVersion("Srv", "Base.svc", "CheckUpdate", "MubeaEWI", String.valueOf(getVersionCode(mContext)));
         updaeResBodyCall.enqueue(new Callback<UpdaeResBody>() {
             @Override
             public void onResponse(Call<UpdaeResBody> call, Response<UpdaeResBody> response) {
-                response.body().d = new UpdateObj();
-                response.body().d.Data = new Update();
-                response.body().d.Data.FileUrl = "http://gdown.baidu.com/data/wisegame/dc1095dc5fe68e29/qianchengwuyou51Job_610.apk";
                 if (response != null && response.body() != null && response.body().d != null && response.body().d.Data != null) {
                     Update update = response.body().d.Data;
-                    if (!TextUtils.isEmpty(update.FileUrl)) {
+                    if (update != null && !TextUtils.isEmpty(update.FileUrl) && !TextUtils.isEmpty(update.Ver) && Integer.parseInt(update.Ver) > getVersionCode(mContext)) {
                         // 下载
                         Toast.makeText(SecretActivity.this, "Downloding EWI.apk ... ", Toast.LENGTH_SHORT).show();
                         downloadApk(response.body().d.Data.FileUrl);
+                    }else{
+                        Toast.makeText(SecretActivity.this, "已经是最新版本！", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(SecretActivity.this, "已经是最新版本！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SecretActivity.this, "无版本更新！", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -151,11 +153,16 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                                 }
                                 my.close();
                             } else {
+                                btn_update.setEnabled(true);
+                                btn_sure.setEnabled(true);
+                                btn_update.setText("升级");
                             }
                         }
                     });
         } catch (Exception e) {
-            e.printStackTrace();
+            btn_update.setEnabled(true);
+            btn_sure.setEnabled(true);
+            btn_update.setText("升级");
         }
     }
 
@@ -220,4 +227,15 @@ public class SecretActivity extends Activity implements View.OnClickListener {
             }
         }
     };
+
+    public int getVersionCode(Context context)//获取版本号(内部识别号)
+    {
+        try {
+            PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return pi.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }
