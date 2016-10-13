@@ -18,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import baranek.vojtech.ftpclient.api.EwiService;
@@ -45,11 +46,14 @@ public class SecretActivity extends Activity implements View.OnClickListener {
 
     private Context mContext;
 
+    private TextView tv_currentversion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_secret);
         mContext = this;
+        tv_currentversion = (TextView) findViewById(R.id.tv_currentversion);
         et_secret = (EditText) findViewById(R.id.et_secret);
         btn_sure = (Button) findViewById(R.id.btn_sure);
         btn_sure.setOnClickListener(this);
@@ -65,6 +69,8 @@ public class SecretActivity extends Activity implements View.OnClickListener {
                 return false;
             }
         });
+
+        tv_currentversion.setText("版本号:  " + getVersionCode(mContext));
     }
 
     @Override
