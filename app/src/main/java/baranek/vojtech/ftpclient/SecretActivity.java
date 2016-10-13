@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,6 +55,16 @@ public class SecretActivity extends Activity implements View.OnClickListener {
         btn_sure.setOnClickListener(this);
         btn_update = (Button) findViewById(R.id.btn_update);
         btn_update.setOnClickListener(this);
+
+        et_secret.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override

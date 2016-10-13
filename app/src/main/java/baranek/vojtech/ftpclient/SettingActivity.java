@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +28,8 @@ public class SettingActivity extends Activity implements View.OnClickListener {
 
     private Button activity_setting;
 
+    private View.OnKeyListener onKeyListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,12 +37,27 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         activity_setting = (Button) findViewById(R.id.btn_setting);
         activity_setting.setOnClickListener(this);
 
+        onKeyListener = new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    return true;
+                }
+                return false;
+            }
+        };
         et_update_host = (EditText) findViewById(R.id.et_update_host);
-
         et_host = (EditText) findViewById(R.id.et_host);
         et_ftp_host = (EditText) findViewById(R.id.et_ftp_host);
         et_ftp_host_iptables = (EditText) findViewById(R.id.et_ftp_host_iptables);
         et_request_time = (EditText) findViewById(R.id.et_request_time);
+
+        et_update_host.setOnKeyListener(onKeyListener);
+        et_host.setOnKeyListener(onKeyListener);
+        et_ftp_host.setOnKeyListener(onKeyListener);
+        et_ftp_host_iptables.setOnKeyListener(onKeyListener);
+        et_request_time.setOnKeyListener(onKeyListener);
+
 
         String host = getSP(Host.KWYHOST);
         if (TextUtils.isEmpty(host)) {
@@ -64,9 +82,9 @@ public class SettingActivity extends Activity implements View.OnClickListener {
 
         String updateHost = getSP(Host.UPDATEKEYHOST);
         if (TextUtils.isEmpty(updateHost)) {
-            et_ftp_host_iptables.setText(String.valueOf(Host.UpdateHost));
+            et_update_host.setText(String.valueOf(Host.UpdateHost));
         } else {
-            et_ftp_host_iptables.setText(updateHost);
+            et_update_host.setText(updateHost);
         }
     }
 
@@ -106,8 +124,9 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         String host = et_host.getText().toString();
         String ftphost = et_ftp_host.getText().toString();
         String ftphostiptables = et_ftp_host_iptables.getText().toString();
-
+        String updateHost = et_update_host.getText().toString().replace(" ", "");
         String request_time = et_request_time.getText().toString();
+
         if (!TextUtils.isEmpty(host)) {
             // do  something
             Host.HOST = host;
@@ -144,8 +163,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         Host.TENLOOPER = time;
 
 
-        String updateHost = et_update_host.getText().toString().replace(" ","");
-        if (!TextUtils.isEmpty(updateHost)){
+        if (!TextUtils.isEmpty(updateHost)) {
             Host.UpdateHost = updateHost;
             savaSP(Host.UPDATEKEYHOST, updateHost);
         }
