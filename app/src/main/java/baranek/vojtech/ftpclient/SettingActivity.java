@@ -58,19 +58,26 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         et_ftp_host_iptables.setOnKeyListener(onKeyListener);
         et_request_time.setOnKeyListener(onKeyListener);
 
+        String updateHost = getSP(Host.UPDATEKEYHOST);
+        if (!TextUtils.isEmpty(updateHost) && updateHost.startsWith("http://") && updateHost.startsWith("/")) {
+            et_update_host.setText(updateHost);
+        } else {
+            et_update_host.setText(String.valueOf(Host.UpdateHost));
+        }
 
         String host = getSP(Host.KWYHOST);
-        if (TextUtils.isEmpty(host)) {
-            et_host.setText(Host.HOST);
-        } else {
+        if (!TextUtils.isEmpty(host) && host.startsWith("http://") && host.endsWith("/")) {
             et_host.setText(host);
+        } else {
+            et_host.setText(Host.HOST);
         }
 
         String ftphost = getSP(Host.KWYFTPHOST);
-        if (TextUtils.isEmpty(ftphost)) {
-            et_ftp_host.setText(Host.FTPHOST);
-        } else {
+        if (!TextUtils.isEmpty(ftphost) && ftphost.split(".").length == 4) {
             et_ftp_host.setText(ftphost);
+        } else {
+            et_ftp_host.setText(Host.FTPHOST);
+
         }
 
         String ftphostiptables = getSP(Host.KWYFTPHOSTIPTABLES);
@@ -80,12 +87,6 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             et_ftp_host_iptables.setText(ftphostiptables);
         }
 
-        String updateHost = getSP(Host.UPDATEKEYHOST);
-        if (TextUtils.isEmpty(updateHost)) {
-            et_update_host.setText(String.valueOf(Host.UpdateHost));
-        } else {
-            et_update_host.setText(updateHost);
-        }
     }
 
 
@@ -94,7 +95,6 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.btn_setting:
                 initSetting();
-                this.finish();
                 break;
         }
     }
@@ -127,15 +127,29 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         String updateHost = et_update_host.getText().toString().replace(" ", "");
         String request_time = et_request_time.getText().toString();
 
-        if (!TextUtils.isEmpty(host)) {
+        if (!TextUtils.isEmpty(updateHost) && updateHost.startsWith("http://") && updateHost.endsWith("/")) {
+            Host.UpdateHost = updateHost;
+            savaSP(Host.UPDATEKEYHOST, updateHost);
+        } else {
+            Toast.makeText(this, "更新地址：http://IP地址:端口/", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!TextUtils.isEmpty(host) && host.startsWith("http://") && host.endsWith("/")) {
             // do  something
             Host.HOST = host;
             savaSP(Host.KWYHOST, host);
+        } else {
+            Toast.makeText(this, "业务地址：http://IP地址:端口/", Toast.LENGTH_LONG).show();
+            return;
         }
 
-        if (!TextUtils.isEmpty(ftphost)) {
+        if (!TextUtils.isEmpty(ftphost) && ftphost.split(".").length == 4) {
             Host.FTPHOST = ftphost;
             savaSP(Host.KWYFTPHOST, ftphost);
+        } else {
+            Toast.makeText(this, "FTP IP地址： XX.XX.XX.XX ", Toast.LENGTH_LONG).show();
+            return;
         }
 
         if (!TextUtils.isEmpty(ftphostiptables)) {
@@ -143,9 +157,13 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             try {
                 ftphostIp = Integer.parseInt(ftphostiptables);
             } catch (Exception e) {
+                Toast.makeText(this, "FTP 端口号： XXXX 为数字", Toast.LENGTH_LONG).show();
             }
             Host.FTPHOSTIPTABLES = ftphostIp;
             savaSP(Host.KWYFTPHOSTIPTABLES, ftphostiptables);
+        } else {
+            Toast.makeText(this, "FTP 端口号： XXXX 为数字", Toast.LENGTH_LONG).show();
+            return;
         }
 
         int time = 10;
@@ -162,12 +180,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         }
         Host.TENLOOPER = time;
 
-
-        if (!TextUtils.isEmpty(updateHost)) {
-            Host.UpdateHost = updateHost;
-            savaSP(Host.UPDATEKEYHOST, updateHost);
-        }
-
+        this.finish();
     }
 
     @Override

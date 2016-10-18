@@ -23,7 +23,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1. 更新接口配置"
+            android:text="1. 更新接口配置: http://IP地址:端口/"
             android:textSize="14sp" />
 
         <EditText
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2. 服务接口配置"
+            android:text="2. 服务接口配置: http://IP地址:端口/"
             android:textSize="14sp" />
 
         <EditText
@@ -49,7 +49,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3. ftp IP配置"
+            android:text="3. ftp IP配置: XX.XX.XX.XX "
             android:textSize="14sp" />
 
         <EditText
@@ -62,7 +62,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="4. ftp 端口配置"
+            android:text="4. ftp 端口配置: 6888 数字"
             android:textSize="14sp" />
 
         <EditText

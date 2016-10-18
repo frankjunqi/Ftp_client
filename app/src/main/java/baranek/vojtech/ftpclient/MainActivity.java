@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -198,6 +199,41 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void initHOST() {
+        String updateHost = getSP(Host.UPDATEKEYHOST);
+        if (!TextUtils.isEmpty(updateHost) && updateHost.startsWith("http://") && updateHost.startsWith("/")) {
+            Host.UpdateHost = updateHost;
+        }
+
+        String host = getSP(Host.KWYHOST);
+        if (!TextUtils.isEmpty(host) && host.startsWith("http://") && host.endsWith("/")) {
+            Host.HOST = host;
+        }
+
+        String ftphost = getSP(Host.KWYFTPHOST);
+        if (!TextUtils.isEmpty(ftphost) && ftphost.split(".").length == 4) {
+            Host.FTPHOST = ftphost;
+        }
+
+        String ftphostiptables = getSP(Host.KWYFTPHOSTIPTABLES);
+        if (!TextUtils.isEmpty(ftphostiptables)) {
+            try {
+                Host.FTPHOSTIPTABLES = Integer.parseInt(ftphostiptables);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+    }
+
+    private String getSP(String key) {
+        //同样，在读取SharedPreferences数据前要实例化出一个SharedPreferences对象
+        SharedPreferences sharedPreferences = getSharedPreferences("test",
+                Activity.MODE_PRIVATE);
+        // 使用getString方法获得value，注意第2个参数是value的默认值
+        String value = sharedPreferences.getString(key, "");
+        return value;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -214,11 +250,10 @@ public class MainActivity extends Activity {
         int heightpix = wm.getDefaultDisplay().getHeight();
         int widthpix = wm.getDefaultDisplay().getWidth();
         picWidth = widthpix / 6;
-
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
-        Log.e(TAG, "densith = " + dm.density + "; densityDpi = " + dm.densityDpi);
 
+        initHOST();
 
         // init height
         titleLineView = new TitleLineView(MainActivity.this);
@@ -544,8 +579,10 @@ public class MainActivity extends Activity {
                 case FILEDOWNOK: {
                     // 文件下载完成并且打开
                     tv_progress_desc.setText("文件：" + taskDate.pdfPath + ",下载完成.");
-                    if (defaultFile.getLink().equals(taskDate.pdfPath)) {
+                    if (!TextUtils.isEmpty(defaultFile.getLink()) && !TextUtils.isEmpty(taskDate.pdfPath) && defaultFile.getLink().equals(taskDate.pdfPath)) {
                         openPdf(defaultFile.getLink());
+                    } else {
+                        Toast.makeText(MainActivity.this, "没有XXX文件", Toast.LENGTH_LONG).show();
                     }
                     if (LBPicPath.equals(taskDate.pdfPath)) {
                         // 显示图片
