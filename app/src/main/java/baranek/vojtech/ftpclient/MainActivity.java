@@ -80,6 +80,7 @@ public class MainActivity extends Activity {
     private final String FILEDOWNOK = "5";// FILEDOWNOK
     private final String FILEDOWNERROR = "6";// FILEDOWNOKEOOR
     private final String PDFNERROR = "7";// PDF error
+    private final String NullPointerInputStream = "8";// inputstream is null
 
     private static final int SENDFLAG = 0x10;// 发送请求的标志码
     private static final int TEMPERATURE = 0x11;// 发送温度的请求标志码
@@ -459,9 +460,10 @@ public class MainActivity extends Activity {
         // 判断本地是否有文件
         String localPdfFile = Environment.getExternalStorageDirectory() + pdfPath;
         File file = new File(localPdfFile);
-        if (file.exists()) {
+        if (file.exists() && file.length() > 0) {
             initPDF(localPdfFile);
         } else {
+            Toast.makeText(MainActivity.this, "文件暂不存在...", Toast.LENGTH_SHORT).show();
             tv_progress_desc.setText("文件暂不存在...");
         }
     }
@@ -542,6 +544,8 @@ public class MainActivity extends Activity {
                 taskDate.resultFlag = NONETWORK;
             } catch (IOException e) {
                 taskDate.resultFlag = PDFNERROR;
+            } catch (NullPointerException e) {
+                taskDate.resultFlag = NullPointerInputStream;
             }
             return taskDate;
         }
@@ -556,6 +560,10 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(TaskDate taskDate) {
             switch (taskDate.resultFlag) {
+                case NullPointerInputStream: {
+                    Toast.makeText(MainActivity.this, "文件 首页.pdf 不存在!", Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 case NOFILEERROR: {
                     // 远程文件不存在的情况下，10s后进行重新请求pn号
                     iv_logo.setVisibility(View.VISIBLE);
@@ -581,8 +589,6 @@ public class MainActivity extends Activity {
                     tv_progress_desc.setText("文件：" + taskDate.pdfPath + ",下载完成.");
                     if (!TextUtils.isEmpty(defaultFile.getLink()) && !TextUtils.isEmpty(taskDate.pdfPath) && defaultFile.getLink().equals(taskDate.pdfPath)) {
                         openPdf(defaultFile.getLink());
-                    } else {
-                        Toast.makeText(MainActivity.this, "没有XXX文件", Toast.LENGTH_LONG).show();
                     }
                     if (LBPicPath.equals(taskDate.pdfPath)) {
                         // 显示图片
